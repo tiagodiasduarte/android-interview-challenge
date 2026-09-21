@@ -1,6 +1,10 @@
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kover)
 }
 
 android {
@@ -52,7 +56,28 @@ dependencies {
 
     testImplementation(libs.junit)
 
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                annotatedBy("androidx.compose.ui.tooling.preview.Preview")
+            }
+        }
+
+        verify {
+            rule("line-coverage") {
+                minBound(
+                    minValue = 90,
+                    coverageUnits = CoverageUnit.LINE,
+                    aggregationForGroup = AggregationType.COVERED_PERCENTAGE
+                )
+            }
+        }
+    }
 }
