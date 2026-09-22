@@ -39,6 +39,21 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    flavorDimensions += "appMode"
+    productFlavors {
+        create("listing") {
+            dimension = "appMode"
+            applicationIdSuffix = ".listing"
+            versionNameSuffix = "-listing"
+        }
+        create("form") {
+            dimension = "appMode"
+            applicationIdSuffix = ".form"
+            versionNameSuffix = "-form"
+        }
     }
 }
 
