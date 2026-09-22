@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import dagger.hilt.android.AndroidEntryPoint
 import pt.tiagoduarte.challenge.ui.theme.AndroidInterviewChallengeTheme
 
+@AndroidEntryPoint
 class ListingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
