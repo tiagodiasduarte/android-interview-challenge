@@ -1,15 +1,16 @@
 [versions]
 activityCompose = "1.13.0"
 agp = "9.3.3"
-composeBom = "2025.11.01"
-coreKtx = "1.18.0"
+composeBom = "2026.09.00"
+coreKtx = "1.19.0"
+detekt = "1.23.8"
 espressoCore = "3.7.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 kotlin = "2.4.20"
 kotlinxSerializationJson = "1.8.1"
 kover = "0.9.9"
-lifecycleRuntimeKtx = "2.10.0"
+lifecycleRuntimeKtx = "2.11.0"
 okhttp = "4.12.0"
 retrofit = "3.0.0"
 
@@ -36,6 +37,7 @@ retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.r
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

@@ -58,6 +58,13 @@ jobs:
         with:
           name: lint-html-report
           path: app/build/reports/lint-results-*.html
+      - run: ./gradlew :app:detekt --stacktrace
+      - name: Upload Detekt HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-html-report
+          path: app/build/reports/detekt/detekt.html
 
   finish:
     name: 🏁 Finish
