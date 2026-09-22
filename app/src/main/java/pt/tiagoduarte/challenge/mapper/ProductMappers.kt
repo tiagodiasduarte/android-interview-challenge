@@ -15,7 +15,7 @@ fun ProductResponse.toEntity(): ProductEntity = ProductEntity(
     thumbnail = thumbnail
 )
 
-fun ProductEntity.toDomain(): Product = Product(
+fun ProductEntity.toProduct(): Product = Product(
     id = id,
     title = title,
     description = description,

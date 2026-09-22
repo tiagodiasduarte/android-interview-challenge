@@ -4,12 +4,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import pt.tiagoduarte.challenge.data.local.db.ProductDao
-import pt.tiagoduarte.challenge.mapper.toDomain
 import pt.tiagoduarte.challenge.mapper.toEntity
 import pt.tiagoduarte.challenge.data.local.prefs.AppPreferences
 import pt.tiagoduarte.challenge.data.remote.ProductApi
 import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.domain.repository.ProductRepository
+import pt.tiagoduarte.challenge.mapper.toProduct
 
 class ProductRepositoryImpl(
     private val api: ProductApi,
@@ -26,8 +26,8 @@ class ProductRepositoryImpl(
     }
 
     override fun observeProducts(): Flow<List<Product>> =
-        dao.observeAll().map { products -> products.map { it.toDomain() } }
+        dao.observeAll().map { products -> products.map { it.toProduct() } }
 
     override fun observeProduct(id: Int): Flow<Product?> =
-        dao.observeById(id).map { it?.toDomain() }
+        dao.observeById(id).map { it?.toProduct() }
 }
