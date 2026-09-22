@@ -83,7 +83,6 @@ detekt {
     allRules = false
     autoCorrect = false
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-    baseline = file("$rootDir/config/detekt/baseline.xml")
 }
 
 kover {
