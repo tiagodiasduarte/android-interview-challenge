@@ -1,0 +1,13 @@
+naming:
+  FunctionNaming:
+    active: true
+    # Allow PascalCase too: Jetpack Compose convention names @Composable functions that way.
+    functionPattern: '^([a-z][a-zA-Z0-9]*)|([A-Z][a-zA-Z0-9]*)$'
+
+style:
+  MagicNumber:
+    active: true
+    # Color/typography constants are inherent to a theme definition, not magic values.
+    # Also restores the default excludes ('**/test/**' etc.) that this override would
+    # otherwise replace, since detekt config values override rather than merge with defaults.
+    excludes: ['**/ui/theme/**', '**/test/**', '**/androidTest/**', '**/*.kts']
