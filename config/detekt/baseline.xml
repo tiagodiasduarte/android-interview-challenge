@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>NewLineAtEndOfFile:Color.kt$pt.tiagoduarte.challenge.ui.theme.Color.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$pt.tiagoduarte.challenge.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Theme.kt$pt.tiagoduarte.challenge.ui.theme.Theme.kt</ID>
+    <ID>NewLineAtEndOfFile:Type.kt$pt.tiagoduarte.challenge.ui.theme.Type.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
