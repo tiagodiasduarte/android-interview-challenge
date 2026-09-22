@@ -1,0 +1,10 @@
+name: Setup Java
+description: Set up the JDK used to build this project
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: "21"
