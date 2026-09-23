@@ -1,6 +1,6 @@
 package pt.tiagoduarte.challenge.fakes
 
-import pt.tiagoduarte.challenge.data.remote.ProductApi
+import pt.tiagoduarte.challenge.data.remote.api.ProductApi
 import pt.tiagoduarte.challenge.data.remote.model.ProductListResponse
 import pt.tiagoduarte.challenge.data.remote.model.ProductResponse
 import java.io.IOException

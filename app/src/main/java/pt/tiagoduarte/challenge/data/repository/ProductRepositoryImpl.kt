@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 import pt.tiagoduarte.challenge.data.local.db.ProductDao
 import pt.tiagoduarte.challenge.mapper.toEntity
 import pt.tiagoduarte.challenge.data.local.prefs.AppPreferences
-import pt.tiagoduarte.challenge.data.remote.ProductApi
+import pt.tiagoduarte.challenge.data.remote.api.ProductApi
 import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.domain.repository.ProductRepository
 import pt.tiagoduarte.challenge.mapper.toProduct
