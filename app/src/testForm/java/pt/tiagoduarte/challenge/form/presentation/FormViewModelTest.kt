@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.form.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
@@ -18,7 +19,7 @@ class FormViewModelTest {
     @Test
     fun `given invalid fields when they change before submitting then no errors are shown`() {
         // Given
-        val viewModel = FormViewModel(clock)
+        val viewModel = FormViewModel(SavedStateHandle(), clock)
 
         // When
         viewModel.onEmailChange("tiago@")
@@ -30,7 +31,7 @@ class FormViewModelTest {
     @Test
     fun `given an empty form when onSubmit is called then every field shows EMPTY`() {
         // Given
-        val viewModel = FormViewModel(clock)
+        val viewModel = FormViewModel(SavedStateHandle(), clock)
 
         // When
         viewModel.onSubmit()
@@ -44,7 +45,7 @@ class FormViewModelTest {
     @Test
     fun `given a failed submit when a field is fixed then its error clears right away`() {
         // Given
-        val viewModel = FormViewModel(clock)
+        val viewModel = FormViewModel(SavedStateHandle(), clock)
         viewModel.onSubmit()
 
         // When
@@ -58,7 +59,7 @@ class FormViewModelTest {
     @Test
     fun `given a failed submit when a field becomes invalid then its error updates right away`() {
         // Given
-        val viewModel = FormViewModel(clock)
+        val viewModel = FormViewModel(SavedStateHandle(), clock)
         viewModel.onSubmit()
 
         // When
@@ -71,7 +72,7 @@ class FormViewModelTest {
     @Test
     fun `given a date after the clock's today when onSubmit is called then the date shows DATE_IN_FUTURE`() {
         // Given
-        val viewModel = FormViewModel(clock).apply { fillValidForm() }
+        val viewModel = FormViewModel(SavedStateHandle(), clock).apply { fillValidForm() }
         viewModel.onDeliveryDateChange(today.plusDays(1))
 
         // When
@@ -85,7 +86,7 @@ class FormViewModelTest {
     @Test
     fun `given a valid form when onSubmit is called then it is submitted and cleared`() {
         // Given
-        val viewModel = FormViewModel(clock).apply { fillValidForm() }
+        val viewModel = FormViewModel(SavedStateHandle(), clock).apply { fillValidForm() }
 
         // When
         viewModel.onSubmit()
@@ -97,7 +98,7 @@ class FormViewModelTest {
     @Test
     fun `given a submitted form when onSubmittedMessageShown is called then isSubmitted resets`() {
         // Given
-        val viewModel = FormViewModel(clock).apply { fillValidForm() }
+        val viewModel = FormViewModel(SavedStateHandle(), clock).apply { fillValidForm() }
         viewModel.onSubmit()
 
         // When
@@ -110,7 +111,7 @@ class FormViewModelTest {
     @Test
     fun `given a successful submit when a field changes then no errors are shown`() {
         // Given
-        val viewModel = FormViewModel(clock).apply { fillValidForm() }
+        val viewModel = FormViewModel(SavedStateHandle(), clock).apply { fillValidForm() }
         viewModel.onSubmit()
 
         // When
@@ -118,6 +119,52 @@ class FormViewModelTest {
 
         // Then
         assertFalse(viewModel.uiState.value.errors.hasErrors)
+    }
+
+    @Test
+    fun `given a filled form when the ViewModel is recreated from its saved state then restores every field`() {
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        val viewModel = FormViewModel(savedStateHandle, clock).apply { fillValidForm() }
+
+        // When
+        val restored = FormViewModel(savedStateHandle, clock)
+
+        // Then
+        assertEquals(viewModel.uiState.value, restored.uiState.value)
+    }
+
+    @Test
+    fun `given a failed submit when the ViewModel is recreated from its saved state then still shows the errors`() {
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        FormViewModel(savedStateHandle, clock).apply {
+            onEmailChange("tiago@")
+            onSubmit()
+        }
+
+        // When
+        val restored = FormViewModel(savedStateHandle, clock)
+
+        // Then
+        assertEquals(FormError.INVALID_EMAIL, restored.uiState.value.errors.email)
+        assertEquals(FormError.EMPTY, restored.uiState.value.errors.name)
+    }
+
+    @Test
+    fun `given a submitted form when the ViewModel is recreated from its saved state then starts empty`() {
+        // Given
+        val savedStateHandle = SavedStateHandle()
+        FormViewModel(savedStateHandle, clock).apply {
+            fillValidForm()
+            onSubmit()
+        }
+
+        // When
+        val restored = FormViewModel(savedStateHandle, clock)
+
+        // Then
+        assertEquals(FormUiState(), restored.uiState.value)
     }
 
     private fun FormViewModel.fillValidForm() {

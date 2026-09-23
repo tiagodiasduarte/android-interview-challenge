@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.listing.presentation.products
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -26,12 +26,15 @@ import pt.tiagoduarte.challenge.domain.repository.ProductRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductsViewModel @Inject constructor(repository: ProductRepository) : ViewModel() {
+class ProductsViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    repository: ProductRepository,
+) : ViewModel() {
 
     private val catalogStatus = MutableStateFlow(CatalogStatus.DOWNLOADING)
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    // Kept in the saved state so the search survives process death
+    val searchQuery: StateFlow<String> = savedStateHandle.getStateFlow(KEY_SEARCH_QUERY, "")
 
     val uiState: StateFlow<ProductsUiState> = combine(repository.observeHasProducts(), catalogStatus) { hasProducts, status ->
         when {
@@ -47,7 +50,7 @@ class ProductsViewModel @Inject constructor(repository: ProductRepository) : Vie
         )
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val products: Flow<PagingData<ProductUiModel>> = _searchQuery
+    val products: Flow<PagingData<ProductUiModel>> = searchQuery
         .map { it.trim() }
         .debounce { query -> if (query.isEmpty()) 0L else SEARCH_DEBOUNCE_MILLIS }
         .distinctUntilChanged()
@@ -69,7 +72,7 @@ class ProductsViewModel @Inject constructor(repository: ProductRepository) : Vie
     }
 
     fun onSearchQueryChange(query: String) {
-        _searchQuery.value = query
+        savedStateHandle[KEY_SEARCH_QUERY] = query
     }
 
     private fun ratingCategoryOf(rating: Double): RatingCategory = when {
@@ -88,6 +91,7 @@ class ProductsViewModel @Inject constructor(repository: ProductRepository) : Vie
     private enum class CatalogStatus { DOWNLOADING, DOWNLOADED, FAILED }
 
     private companion object {
+        const val KEY_SEARCH_QUERY = "searchQuery"
         const val STOP_TIMEOUT_MILLIS = 5_000L
         const val SEARCH_DEBOUNCE_MILLIS = 300L
         const val MEDIUM_RATING_MIN = 3.0
