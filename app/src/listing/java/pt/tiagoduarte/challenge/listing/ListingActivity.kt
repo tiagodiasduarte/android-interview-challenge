@@ -10,7 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import pt.tiagoduarte.challenge.ui.theme.AndroidInterviewChallengeTheme
+import pt.tiagoduarte.challenge.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class ListingActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class ListingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AndroidInterviewChallengeTheme {
+            AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Text(
                         text = "Listing",
