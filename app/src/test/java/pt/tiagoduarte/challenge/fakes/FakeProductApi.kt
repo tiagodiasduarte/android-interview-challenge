@@ -10,8 +10,8 @@ class FakeProductApi(
     var shouldThrow: Boolean = false,
 ) : ProductApi {
 
-    override suspend fun getProducts(limit: Int): ProductListResponse {
+    override suspend fun getProducts(): ProductListResponse {
         if (shouldThrow) throw IOException("Network error")
-        return ProductListResponse(products = products, total = products.size, skip = 0, limit = limit)
+        return ProductListResponse(products = products, total = products.size, skip = 0, limit = products.size)
     }
 }
