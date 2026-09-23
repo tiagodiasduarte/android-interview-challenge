@@ -123,20 +123,56 @@ kover {
         filters {
             excludes {
                 annotatedBy("androidx.compose.ui.tooling.preview.Preview")
+                annotatedBy("androidx.compose.runtime.Composable")
+
+                classes(
+                    // Generated code
+                    "*_Factory",
+                    "*_Factory\$*",
+                    "*_MembersInjector",
+                    "*_Impl",
+                    "*_Impl\$*",
+                    "*Hilt_*",
+                    "*_HiltComponents*",
+                    "*_HiltModules*",
+                    "*Dagger*",
+                    "*ComposableSingletons*",
+                    "dagger.hilt.internal.aggregatedroot.codegen.*",
+                    "hilt_aggregated_deps.*",
+                    "pt.tiagoduarte.challenge.BuildConfig",
+
+                    // Application classes
+                    "pt.tiagoduarte.challenge.listing.ListingApp",
+                    "pt.tiagoduarte.challenge.form.FormApp",
+
+                    // Activities and DI
+                    "pt.tiagoduarte.challenge.listing.ListingActivity",
+                    "pt.tiagoduarte.challenge.form.FormActivity",
+                    "pt.tiagoduarte.challenge.listing.di.*",
+                    "pt.tiagoduarte.challenge.data.local.db.AppDatabase",
+
+                    // Theme
+                    "pt.tiagoduarte.challenge.ui.theme.*",
+
+                    // Retrofit API and DTOs
+                    "pt.tiagoduarte.challenge.data.remote.RetrofitClient",
+                    "pt.tiagoduarte.challenge.data.remote.api.*",
+                    "pt.tiagoduarte.challenge.data.remote.model.*",
+                )
             }
         }
 
         verify {
             rule("line-coverage") {
                 minBound(
-                    minValue = 0, // Temporary value for don't stop the tests
+                    minValue = 80,
                     coverageUnits = CoverageUnit.LINE,
                     aggregationForGroup = AggregationType.COVERED_PERCENTAGE
                 )
             }
             rule("branch-coverage") {
                 minBound(
-                    minValue = 0, // Temporary value for don't stop the tests
+                    minValue = 80,
                     coverageUnits = CoverageUnit.BRANCH,
                     aggregationForGroup = AggregationType.COVERED_PERCENTAGE
                 )
