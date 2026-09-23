@@ -39,7 +39,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        isCoreLibraryDesugaringEnabled = true
     }
 
     buildFeatures {
@@ -96,8 +95,6 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.kotlinx.serialization)
-
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)
