@@ -1,3 +1,7 @@
 <resources>
     <string name="product_list_title">Products</string>
+    <string name="product_list_error">Couldn\'t load the products. Check your connection and try again.</string>
+    <string name="rating_low_content_description">Low rating</string>
+    <string name="rating_medium_content_description">Medium rating</string>
+    <string name="rating_high_content_description">High rating</string>
 </resources>

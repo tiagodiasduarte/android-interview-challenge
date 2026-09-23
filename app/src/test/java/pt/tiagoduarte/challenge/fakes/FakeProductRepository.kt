@@ -5,9 +5,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.domain.repository.ProductRepository
+import java.io.IOException
 
 class FakeProductRepository(
     initialProducts: List<Product> = emptyList(),
+    var shouldThrow: Boolean = false,
 ) : ProductRepository {
 
     private val products = MutableStateFlow(initialProducts)
@@ -17,6 +19,7 @@ class FakeProductRepository(
 
     override suspend fun ensureCatalogDownloaded() {
         ensureCatalogDownloadedCallCount++
+        if (shouldThrow) throw IOException("Network error")
     }
 
     override fun observeProducts(): Flow<List<Product>> = products
