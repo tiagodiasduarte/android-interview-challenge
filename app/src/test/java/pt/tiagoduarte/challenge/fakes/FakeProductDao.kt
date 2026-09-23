@@ -2,6 +2,7 @@ package pt.tiagoduarte.challenge.fakes
 
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
+import androidx.room.RoomRawQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -14,7 +15,9 @@ class FakeProductDao : ProductDao {
 
     override fun observeAll(): Flow<List<ProductEntity>> = products
 
-    override fun pagingSource(): PagingSource<Int, ProductEntity> = products.value.asPagingSourceFactory().invoke()
+    // Returns every product: running the raw search SQL needs a real Room database, see ProductRepositoryImplTest
+    override fun pagingSource(query: RoomRawQuery): PagingSource<Int, ProductEntity> =
+        products.value.asPagingSourceFactory().invoke()
 
     override fun observeHasProducts(): Flow<Boolean> = products.map { it.isNotEmpty() }
 

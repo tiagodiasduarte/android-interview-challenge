@@ -5,6 +5,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.RoomRawQuery
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,8 +15,8 @@ interface ProductDao {
     @Query("SELECT * FROM products ORDER BY id")
     fun observeAll(): Flow<List<ProductEntity>>
 
-    @Query("SELECT * FROM products ORDER BY id")
-    fun pagingSource(): PagingSource<Int, ProductEntity>
+    @RawQuery(observedEntities = [ProductEntity::class])
+    fun pagingSource(query: RoomRawQuery): PagingSource<Int, ProductEntity>
 
     @Query("SELECT EXISTS(SELECT 1 FROM products)")
     fun observeHasProducts(): Flow<Boolean>
