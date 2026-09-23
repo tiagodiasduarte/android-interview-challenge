@@ -1,0 +1,25 @@
+<resources>
+    <string name="form_title">Order form</string>
+    <string name="form_name">Name</string>
+    <string name="form_email">Email</string>
+    <string name="form_number">Number</string>
+    <string name="form_promo_code">Promo code</string>
+    <string name="form_delivery_date">Delivery date</string>
+    <string name="form_date_confirm">OK</string>
+    <string name="form_date_cancel">Cancel</string>
+    <string name="form_rating">Rating</string>
+    <string name="form_rating_bad">Bad</string>
+    <string name="form_rating_satisfactory">Satisfactory</string>
+    <string name="form_rating_good">Good</string>
+    <string name="form_rating_very_good">Very good</string>
+    <string name="form_rating_excellent">Excellent</string>
+    <string name="form_submit">Submit</string>
+    <string name="form_submitted">Form submitted</string>
+    <string name="form_error_empty">This field is required</string>
+    <string name="form_error_email">Enter a valid email</string>
+    <string name="form_error_digits">Use digits only</string>
+    <string name="form_error_promo_code_characters">Use only uppercase letters and hyphens</string>
+    <string name="form_error_promo_code_length">Use between 3 and 7 characters</string>
+    <string name="form_error_date_monday">The date can\'t be a Monday</string>
+    <string name="form_error_date_future">The date can\'t be in the future</string>
+</resources>
