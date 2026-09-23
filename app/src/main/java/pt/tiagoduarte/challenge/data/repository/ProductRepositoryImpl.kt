@@ -10,8 +10,9 @@ import pt.tiagoduarte.challenge.data.remote.api.ProductApi
 import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.domain.repository.ProductRepository
 import pt.tiagoduarte.challenge.mapper.toProduct
+import javax.inject.Inject
 
-class ProductRepositoryImpl(
+class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApi,
     private val dao: ProductDao,
     private val prefs: AppPreferences,
