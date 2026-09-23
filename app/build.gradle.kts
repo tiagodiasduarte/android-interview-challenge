@@ -94,6 +94,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     testImplementation(libs.junit)
+
+    detektPlugins(libs.compose.rules.detekt)
 }
 
 detekt {
