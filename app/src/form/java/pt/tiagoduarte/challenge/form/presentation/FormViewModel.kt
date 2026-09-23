@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.form.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,13 +14,16 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class FormViewModel @Inject constructor(private val clock: Clock) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(FormUiState())
-    val uiState: StateFlow<FormUiState> = _uiState.asStateFlow()
+class FormViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val clock: Clock,
+) : ViewModel() {
 
     // Errors are shown once the user first tries to submit, then kept up to date on every change
-    private var showErrors = false
+    private var showErrors: Boolean = savedStateHandle[KEY_SHOW_ERRORS] ?: false
+
+    private val _uiState = MutableStateFlow(restoreForm())
+    val uiState: StateFlow<FormUiState> = _uiState.asStateFlow()
 
     val today: LocalDate
         get() = LocalDate.now(clock)
@@ -45,6 +49,7 @@ class FormViewModel @Inject constructor(private val clock: Clock) : ViewModel() 
             showErrors = false
             _uiState.value = FormUiState(isSubmitted = true)
         }
+        saveForm(_uiState.value)
     }
 
     fun onSubmittedMessageShown() {
@@ -56,6 +61,30 @@ class FormViewModel @Inject constructor(private val clock: Clock) : ViewModel() 
             val updated = state.transform()
             if (showErrors) updated.copy(errors = validate(updated)) else updated
         }
+        saveForm(_uiState.value)
+    }
+
+    // Keeps what the user typed across process death; errors are recomputed from it
+    private fun saveForm(state: FormUiState) {
+        savedStateHandle[KEY_NAME] = state.name
+        savedStateHandle[KEY_EMAIL] = state.email
+        savedStateHandle[KEY_NUMBER] = state.number
+        savedStateHandle[KEY_PROMO_CODE] = state.promoCode
+        savedStateHandle[KEY_DELIVERY_DATE] = state.deliveryDate?.toEpochDay()
+        savedStateHandle[KEY_RATING] = state.rating?.name
+        savedStateHandle[KEY_SHOW_ERRORS] = showErrors
+    }
+
+    private fun restoreForm(): FormUiState {
+        val form = FormUiState(
+            name = savedStateHandle[KEY_NAME] ?: "",
+            email = savedStateHandle[KEY_EMAIL] ?: "",
+            number = savedStateHandle[KEY_NUMBER] ?: "",
+            promoCode = savedStateHandle[KEY_PROMO_CODE] ?: "",
+            deliveryDate = savedStateHandle.get<Long>(KEY_DELIVERY_DATE)?.let(LocalDate::ofEpochDay),
+            rating = savedStateHandle.get<String>(KEY_RATING)?.let(RatingClassification::valueOf),
+        )
+        return if (showErrors) form.copy(errors = validate(form)) else form
     }
 
     private fun validate(state: FormUiState) = FormErrors(
@@ -66,4 +95,14 @@ class FormViewModel @Inject constructor(private val clock: Clock) : ViewModel() 
         deliveryDate = FormValidator.validateDeliveryDate(state.deliveryDate, today),
         rating = FormValidator.validateRating(state.rating),
     )
+
+    private companion object {
+        const val KEY_NAME = "name"
+        const val KEY_EMAIL = "email"
+        const val KEY_NUMBER = "number"
+        const val KEY_PROMO_CODE = "promoCode"
+        const val KEY_DELIVERY_DATE = "deliveryDate"
+        const val KEY_RATING = "rating"
+        const val KEY_SHOW_ERRORS = "showErrors"
+    }
 }
