@@ -69,6 +69,7 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.adaptive)
     implementation(libs.androidx.compose.material3)
 
     implementation(libs.androidx.compose.ui)
@@ -85,6 +86,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.hilt.android)
     implementation(libs.kotlinx.serialization.json)

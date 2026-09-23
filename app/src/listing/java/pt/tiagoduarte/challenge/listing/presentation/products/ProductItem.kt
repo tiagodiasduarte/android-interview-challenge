@@ -25,8 +25,9 @@ import pt.tiagoduarte.challenge.ui.theme.SpaceSize
 
 
 @Composable
-fun ProductItem(product: ProductUiModel, modifier: Modifier = Modifier) {
+fun ProductItem(product: ProductUiModel, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SpaceSize.large),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
