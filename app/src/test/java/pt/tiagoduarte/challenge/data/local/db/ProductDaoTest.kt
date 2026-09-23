@@ -3,41 +3,28 @@ package pt.tiagoduarte.challenge.data.local.db
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import androidx.room.Room
 import androidx.room.RoomRawQuery
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import pt.tiagoduarte.challenge.random.nextProductEntity
+import pt.tiagoduarte.challenge.rules.DatabaseTestRule
 import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class ProductDaoTest {
 
-    private lateinit var database: AppDatabase
-    private lateinit var dao: ProductDao
+    @get:Rule
+    val databaseRule = DatabaseTestRule(AppDatabase::class)
 
-    @Before
-    fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), AppDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
-        dao = database.productDao()
-    }
-
-    @After
-    fun tearDown() {
-        database.close()
-    }
+    private val dao: ProductDao get() = databaseRule.database.productDao()
 
     @Test
     fun `given an empty database when observeAll is called then emits an empty list`() = runTest {

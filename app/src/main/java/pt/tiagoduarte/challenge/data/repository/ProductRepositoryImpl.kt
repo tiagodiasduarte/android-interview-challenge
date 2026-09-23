@@ -73,9 +73,9 @@ class ProductRepositoryImpl @Inject constructor(
         }
     }
 
-    // Must match the ESCAPE '\' character used in the search conditions
-    private fun String.escapeLike(): String =
-        replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    private fun String.escapeLike(): String = replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
 
     private companion object {
         const val PAGE_SIZE = 20
