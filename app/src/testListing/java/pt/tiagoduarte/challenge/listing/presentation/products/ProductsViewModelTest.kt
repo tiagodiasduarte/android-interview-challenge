@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.listing.presentation.products
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -31,7 +32,7 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository()
 
             // When
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // Then
             viewModel.uiState.test {
@@ -48,7 +49,7 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository(downloadGate = downloadGate)
 
             // When
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // Then
             viewModel.uiState.test {
@@ -68,7 +69,7 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository(initialProducts = listOf(Random.nextProduct()))
 
             // When
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // Then
             viewModel.uiState.test {
@@ -84,7 +85,7 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository(shouldThrow = true)
 
             // When
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // Then
             viewModel.uiState.test {
@@ -103,7 +104,7 @@ class ProductsViewModelTest {
             )
 
             // When
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // Then
             viewModel.uiState.test {
@@ -119,7 +120,7 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository()
 
             // When
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // Then
             viewModel.uiState.test {
@@ -135,7 +136,7 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository()
 
             // When
-            ProductsViewModel(repository)
+            ProductsViewModel(SavedStateHandle(), repository)
             advanceUntilIdle()
 
             // Then
@@ -147,7 +148,7 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val product = Random.nextProduct(rating = 4.5)
-            val viewModel = ProductsViewModel(FakeProductRepository(listOf(product)))
+            val viewModel = ProductsViewModel(SavedStateHandle(), FakeProductRepository(listOf(product)))
 
             // When
             val products = viewModel.awaitProducts()
@@ -171,7 +172,7 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val product = Random.nextProduct(rating = 2.99)
-            val viewModel = ProductsViewModel(FakeProductRepository(listOf(product)))
+            val viewModel = ProductsViewModel(SavedStateHandle(), FakeProductRepository(listOf(product)))
 
             // When
             val products = viewModel.awaitProducts()
@@ -186,7 +187,7 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val product = Random.nextProduct(rating = 3.0)
-            val viewModel = ProductsViewModel(FakeProductRepository(listOf(product)))
+            val viewModel = ProductsViewModel(SavedStateHandle(), FakeProductRepository(listOf(product)))
 
             // When
             val products = viewModel.awaitProducts()
@@ -201,7 +202,7 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val product = Random.nextProduct(rating = 4.0)
-            val viewModel = ProductsViewModel(FakeProductRepository(listOf(product)))
+            val viewModel = ProductsViewModel(SavedStateHandle(), FakeProductRepository(listOf(product)))
 
             // When
             val products = viewModel.awaitProducts()
@@ -216,7 +217,7 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val product = Random.nextProduct(rating = 4.01)
-            val viewModel = ProductsViewModel(FakeProductRepository(listOf(product)))
+            val viewModel = ProductsViewModel(SavedStateHandle(), FakeProductRepository(listOf(product)))
 
             // When
             val products = viewModel.awaitProducts()
@@ -230,7 +231,7 @@ class ProductsViewModelTest {
     fun `given a search query when it changes then searchQuery holds it right away`() =
         runTest {
             // Given
-            val viewModel = ProductsViewModel(FakeProductRepository())
+            val viewModel = ProductsViewModel(SavedStateHandle(), FakeProductRepository())
 
             // When
             viewModel.onSearchQueryChange("kiwi")
@@ -245,7 +246,7 @@ class ProductsViewModelTest {
             // Given
             val kiwi = Random.nextProduct(title = "Kiwi")
             val repository = FakeProductRepository(listOf(Random.nextProduct(title = "Apple"), kiwi))
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
 
             // When
             viewModel.onSearchQueryChange("  kiwi ")
@@ -261,7 +262,7 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val repository = FakeProductRepository()
-            val viewModel = ProductsViewModel(repository)
+            val viewModel = ProductsViewModel(SavedStateHandle(), repository)
             backgroundScope.launch { viewModel.products.collect {} }
             advanceUntilIdle()
 
@@ -275,6 +276,24 @@ class ProductsViewModelTest {
 
             // Then
             assertEquals(listOf("", "kiwi"), repository.searchQueries)
+        }
+
+    @Test
+    fun `given a search query when the ViewModel is recreated from its saved state then restores the search`() =
+        runTest {
+            // Given
+            val kiwi = Random.nextProduct(title = "Kiwi")
+            val repository = FakeProductRepository(listOf(Random.nextProduct(title = "Apple"), kiwi))
+            val savedStateHandle = SavedStateHandle()
+            ProductsViewModel(savedStateHandle, repository).onSearchQueryChange("kiwi")
+
+            // When
+            val restored = ProductsViewModel(savedStateHandle, repository)
+            val products = restored.awaitProducts()
+
+            // Then
+            assertEquals("kiwi", restored.searchQuery.value)
+            assertEquals(listOf(kiwi.id), products.map { it.id })
         }
 
     private suspend fun ProductsViewModel.awaitProducts(): List<ProductUiModel> {
