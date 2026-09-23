@@ -46,6 +46,11 @@ android {
         buildConfig = true
     }
 
+    @Suppress("UnstableApiUsage")
+    testFixtures {
+        enable = true
+    }
+
     flavorDimensions += "appMode"
     productFlavors {
         create("listing") {
@@ -94,6 +99,9 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     testImplementation(libs.junit)
+
+    testFixturesImplementation(platform(libs.androidx.compose.bom))
+    testFixturesImplementation(libs.androidx.compose.runtime)
 
     detektPlugins(libs.compose.rules.detekt)
 }
