@@ -1,5 +1,9 @@
 package pt.tiagoduarte.challenge.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -26,9 +30,26 @@ class ProductRepositoryImpl @Inject constructor(
         prefs.setCatalogDownloaded(true)
     }
 
-    override fun observeProducts(): Flow<List<Product>> =
-        dao.observeAll().map { products -> products.map { it.toProduct() } }
+    override fun observePagedProducts(): Flow<PagingData<Product>> =
+        Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                initialLoadSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false,
+            ),
+            pagingSourceFactory = { dao.pagingSource() },
+        )
+            .flow
+            .map { pagingData -> pagingData.map { it.toProduct() } }
+
+    override fun observeHasProducts(): Flow<Boolean> = dao.observeHasProducts()
 
     override fun observeProduct(id: Int): Flow<Product?> =
         dao.observeById(id).map { it?.toProduct() }
+
+    private companion object {
+        const val PAGE_SIZE = 20
+        const val PREFETCH_DISTANCE = 5
+    }
 }
