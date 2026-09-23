@@ -2,6 +2,7 @@ package pt.tiagoduarte.challenge.listing.presentation.products
 
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -32,6 +33,27 @@ class ProductsViewModelTest {
             viewModel.products.test {
                 assertEquals(ProductsUiState.Loading, awaitItem())
                 cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given the download is in progress and no saved products when products are observed then it stays Loading`() =
+        runTest {
+            // Given
+            val downloadGate = CompletableDeferred<Unit>()
+            val repository = FakeProductRepository(downloadGate = downloadGate)
+
+            // When
+            val viewModel = ProductsViewModel(repository)
+
+            // Then
+            viewModel.products.test {
+                assertEquals(ProductsUiState.Loading, awaitItem())
+                advanceUntilIdle()
+                expectNoEvents()
+
+                downloadGate.complete(Unit)
+                assertEquals(ProductsUiState.Loaded(emptyList()), awaitItem())
             }
         }
 
