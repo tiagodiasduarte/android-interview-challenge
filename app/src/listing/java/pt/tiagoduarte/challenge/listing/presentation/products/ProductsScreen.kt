@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +23,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import kotlinx.coroutines.flow.flowOf
 import pt.tiagoduarte.challenge.R
 import pt.tiagoduarte.challenge.ui.theme.AppTheme
 import pt.tiagoduarte.challenge.ui.theme.PreviewDevices
@@ -34,14 +38,15 @@ import pt.tiagoduarte.challenge.ui.theme.SpaceSize
 fun ProductsRoute(
     viewModel: ProductsViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.products.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val products = viewModel.products.collectAsLazyPagingItems()
 
-    ProductsScreen(uiState)
+    ProductsScreen(uiState, products)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProductsScreen(productsUiState: ProductsUiState) {
+private fun ProductsScreen(productsUiState: ProductsUiState, products: LazyPagingItems<ProductUiModel>) {
     Scaffold(
         modifier = Modifier,
         containerColor = MaterialTheme.colorScheme.background,
@@ -65,10 +70,7 @@ private fun ProductsScreen(productsUiState: ProductsUiState) {
         when (productsUiState) {
             ProductsUiState.Loading -> ProductsLoadingContent(modifier = contentModifier)
             ProductsUiState.Error -> ProductsErrorContent(modifier = contentModifier)
-            is ProductsUiState.Loaded -> ProductsLoadedContent(
-                products = productsUiState.products,
-                modifier = contentModifier,
-            )
+            ProductsUiState.Loaded -> ProductsLoadedContent(products = products, modifier = contentModifier)
         }
     }
 }
@@ -102,7 +104,7 @@ private fun ProductsErrorContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ProductsLoadedContent(products: List<ProductUiModel>, modifier: Modifier = Modifier) {
+private fun ProductsLoadedContent(products: LazyPagingItems<ProductUiModel>, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 280.dp),
         modifier = modifier.fillMaxSize(),
@@ -110,8 +112,8 @@ private fun ProductsLoadedContent(products: List<ProductUiModel>, modifier: Modi
         verticalArrangement = Arrangement.spacedBy(SpaceSize.medium),
         horizontalArrangement = Arrangement.spacedBy(SpaceSize.medium),
     ) {
-        items(products, key = ProductUiModel::id) { product ->
-            ProductItem(product)
+        items(count = products.itemCount, key = products.itemKey { it.id }) { index ->
+            products[index]?.let { product -> ProductItem(product) }
         }
     }
 }
@@ -130,7 +132,7 @@ private fun ProductsContentPreview() {
         product.copy(id = id)
     }
     AppTheme {
-        ProductsScreen(ProductsUiState.Loaded(products = products))
+        ProductsScreen(ProductsUiState.Loaded, previewPagingItems(products))
     }
 }
 
@@ -138,7 +140,7 @@ private fun ProductsContentPreview() {
 @Composable
 private fun ProductsLoadingPreview() {
     AppTheme {
-        ProductsScreen(ProductsUiState.Loading)
+        ProductsScreen(ProductsUiState.Loading, previewPagingItems())
     }
 }
 
@@ -146,8 +148,12 @@ private fun ProductsLoadingPreview() {
 @Composable
 private fun ProductsErrorPreview() {
     AppTheme {
-        ProductsScreen(ProductsUiState.Error)
+        ProductsScreen(ProductsUiState.Error, previewPagingItems())
     }
 }
+
+@Composable
+private fun previewPagingItems(products: List<ProductUiModel> = emptyList()): LazyPagingItems<ProductUiModel> =
+    flowOf(PagingData.from(products)).collectAsLazyPagingItems()
 
 

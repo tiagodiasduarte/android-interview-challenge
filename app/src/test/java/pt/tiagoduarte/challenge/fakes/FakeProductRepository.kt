@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.fakes
 
+import androidx.paging.PagingData
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,9 @@ class FakeProductRepository(
         if (shouldThrow) throw IOException("Network error")
     }
 
-    override fun observeProducts(): Flow<List<Product>> = products
+    override fun observePagedProducts(): Flow<PagingData<Product>> = products.map { PagingData.from(it) }
+
+    override fun observeHasProducts(): Flow<Boolean> = products.map { it.isNotEmpty() }
 
     override fun observeProduct(id: Int): Flow<Product?> =
         products.map { list -> list.find { it.id == id } }

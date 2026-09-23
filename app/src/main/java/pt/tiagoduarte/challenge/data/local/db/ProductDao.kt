@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.data.local.db
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -11,6 +12,12 @@ interface ProductDao {
 
     @Query("SELECT * FROM products ORDER BY id")
     fun observeAll(): Flow<List<ProductEntity>>
+
+    @Query("SELECT * FROM products ORDER BY id")
+    fun pagingSource(): PagingSource<Int, ProductEntity>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM products)")
+    fun observeHasProducts(): Flow<Boolean>
 
     @Query("SELECT * FROM products WHERE id = :id")
     fun observeById(id: Int): Flow<ProductEntity?>

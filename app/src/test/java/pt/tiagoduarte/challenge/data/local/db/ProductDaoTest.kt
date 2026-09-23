@@ -1,5 +1,8 @@
 package pt.tiagoduarte.challenge.data.local.db
 
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.testing.TestPager
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -7,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -72,6 +76,49 @@ class ProductDaoTest {
 
         // Then
         assertEquals(listOf(updated), dao.observeAll().first())
+    }
+
+    @Test
+    fun `given inserted products when the paging source loads the first page then returns them ordered by id`() =
+        runTest {
+            // Given
+            val first = Random.nextProductEntity(id = 1)
+            val second = Random.nextProductEntity(id = 2)
+            val third = Random.nextProductEntity(id = 3)
+            dao.insertAll(listOf(third, first, second))
+            val pager = TestPager(
+                PagingConfig(pageSize = 2, initialLoadSize = 2, enablePlaceholders = false),
+                dao.pagingSource(),
+            )
+
+            // When
+            val page = pager.refresh() as PagingSource.LoadResult.Page
+
+            // Then
+            assertEquals(listOf(first, second), page.data)
+        }
+
+    @Test
+    fun `given an empty database when observeHasProducts is called then emits false`() = runTest {
+        // Given an empty database
+
+        // When
+        val hasProducts = dao.observeHasProducts().first()
+
+        // Then
+        assertFalse(hasProducts)
+    }
+
+    @Test
+    fun `given an inserted product when observeHasProducts is called then emits true`() = runTest {
+        // Given
+        dao.insertAll(listOf(Random.nextProductEntity(id = 1)))
+
+        // When
+        val hasProducts = dao.observeHasProducts().first()
+
+        // Then
+        assertTrue(hasProducts)
     }
 
     @Test

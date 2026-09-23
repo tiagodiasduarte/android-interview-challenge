@@ -1,5 +1,6 @@
 package pt.tiagoduarte.challenge.data.repository
 
+import androidx.paging.testing.asSnapshot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -12,6 +13,7 @@ import pt.tiagoduarte.challenge.fakes.FakeProductApi
 import pt.tiagoduarte.challenge.fakes.FakeProductDao
 import pt.tiagoduarte.challenge.random.nextProductResponse
 import pt.tiagoduarte.challenge.mapper.toEntity
+import pt.tiagoduarte.challenge.mapper.toProduct
 import kotlin.random.Random
 
 class ProductRepositoryImplTest {
@@ -69,7 +71,7 @@ class ProductRepositoryImplTest {
         }
 
     @Test
-    fun `given products in the database when observeProducts is called then emits them mapped to domain models`() =
+    fun `given products in the database when observePagedProducts is called then emits them mapped to domain models`() =
         runTest {
             // Given
             val dao = FakeProductDao()
@@ -77,12 +79,40 @@ class ProductRepositoryImplTest {
             val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
 
             // When
-            val products = repository.observeProducts().first()
+            val products = repository.observePagedProducts().asSnapshot()
 
             // Then
-            assertEquals(1, products.size)
-            assertEquals(product.id, products.first().id)
+            assertEquals(listOf(product.toEntity().toProduct()), products)
         }
+
+    @Test
+    fun `given more products than a page when observePagedProducts is called then emits only the first page`() =
+        runTest {
+            // Given
+            val dao = FakeProductDao()
+            dao.insertAll((1..30).map { Random.nextProductResponse(id = it).toEntity() })
+            val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+
+            // When
+            val products = repository.observePagedProducts().asSnapshot()
+
+            // Then
+            assertEquals((1..20).toList(), products.map { it.id })
+        }
+
+    @Test
+    fun `given products in the database when observeHasProducts is called then emits true`() = runTest {
+        // Given
+        val dao = FakeProductDao()
+        dao.insertAll(listOf(product.toEntity()))
+        val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+
+        // When
+        val hasProducts = repository.observeHasProducts().first()
+
+        // Then
+        assertTrue(hasProducts)
+    }
 
     @Test
     fun `given a product id when observeProduct is called then emits the matching product`() = runTest {

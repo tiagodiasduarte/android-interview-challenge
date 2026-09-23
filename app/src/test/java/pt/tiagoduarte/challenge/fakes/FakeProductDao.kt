@@ -1,5 +1,7 @@
 package pt.tiagoduarte.challenge.fakes
 
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -11,6 +13,10 @@ class FakeProductDao : ProductDao {
     private val products = MutableStateFlow<List<ProductEntity>>(emptyList())
 
     override fun observeAll(): Flow<List<ProductEntity>> = products
+
+    override fun pagingSource(): PagingSource<Int, ProductEntity> = products.value.asPagingSourceFactory().invoke()
+
+    override fun observeHasProducts(): Flow<Boolean> = products.map { it.isNotEmpty() }
 
     override fun observeById(id: Int): Flow<ProductEntity?> =
         products.map { entities -> entities.find { it.id == id } }
