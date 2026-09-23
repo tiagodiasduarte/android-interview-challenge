@@ -76,10 +76,13 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.hilt.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
@@ -123,6 +126,7 @@ kover {
         filters {
             excludes {
                 annotatedBy("androidx.compose.ui.tooling.preview.Preview")
+                annotatedBy("pt.tiagoduarte.challenge.ui.theme.PreviewDevices")
                 annotatedBy("androidx.compose.runtime.Composable")
 
                 classes(
@@ -146,7 +150,7 @@ kover {
                     "pt.tiagoduarte.challenge.form.FormApp",
 
                     // Activities and DI
-                    "pt.tiagoduarte.challenge.listing.ListingActivity",
+                    "pt.tiagoduarte.challenge.listing.presentation.ListingActivity",
                     "pt.tiagoduarte.challenge.form.FormActivity",
                     "pt.tiagoduarte.challenge.listing.di.*",
                     "pt.tiagoduarte.challenge.data.local.db.AppDatabase",
