@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,20 +25,27 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowSizeClass
 import coil3.compose.AsyncImage
 import pt.tiagoduarte.challenge.R
 import pt.tiagoduarte.challenge.ui.theme.AppTheme
 import pt.tiagoduarte.challenge.ui.theme.PreviewDevices
 import pt.tiagoduarte.challenge.ui.theme.SpaceSize
+
+private val MaxContentWidth = 1000.dp
+private val MaxImageSize = 480.dp
 
 @Composable
 fun ProductDetailRoute(
@@ -114,23 +122,57 @@ private fun ProductDetailNotFoundContent(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ProductDetailLoadedContent(product: ProductDetailUiModel, modifier: Modifier = Modifier) {
-    Column(
+    val isWideWindow = currentWindowAdaptiveInfo().windowSizeClass
+        .isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(SpaceSize.large),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        val contentModifier = Modifier.widthIn(max = MaxContentWidth)
+        if (isWideWindow) {
+            Row(
+                modifier = contentModifier,
+                horizontalArrangement = Arrangement.spacedBy(SpaceSize.xlarge),
+            ) {
+                ProductDetailImage(imageUrl = product.imageUrl, modifier = Modifier.weight(1f))
+                ProductDetailInfo(product = product, modifier = Modifier.weight(1f))
+            }
+        } else {
+            Column(
+                modifier = contentModifier,
+                verticalArrangement = Arrangement.spacedBy(SpaceSize.large),
+            ) {
+                ProductDetailImage(imageUrl = product.imageUrl)
+                ProductDetailInfo(product = product)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductDetailImage(imageUrl: String, modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = imageUrl,
+        contentDescription = null,
+        contentScale = ContentScale.Fit,
+        modifier = modifier
+            .widthIn(max = MaxImageSize)
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(SpaceSize.large)),
+    )
+}
+
+@Composable
+private fun ProductDetailInfo(product: ProductDetailUiModel, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpaceSize.large),
     ) {
-        AsyncImage(
-            model = product.imageUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(SpaceSize.large)),
-        )
-
         Text(
             text = product.title,
             style = MaterialTheme.typography.headlineSmall,
