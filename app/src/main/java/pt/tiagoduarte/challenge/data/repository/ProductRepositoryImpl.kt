@@ -20,7 +20,7 @@ class ProductRepositoryImpl @Inject constructor(
 
     override suspend fun ensureCatalogDownloaded() {
         if (prefs.isCatalogDownloaded.first()) return
-        val response = api.getProducts(limit = 0)
+        val response = api.getProducts()
         dao.clearAll()
         dao.insertAll(response.products.map { it.toEntity() })
         prefs.setCatalogDownloaded(true)

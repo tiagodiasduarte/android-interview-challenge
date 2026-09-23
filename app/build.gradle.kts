@@ -101,8 +101,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 
+    testImplementation(libs.androidx.junit)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.robolectric)
 
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
@@ -160,7 +163,6 @@ kover {
 
                     // Retrofit API and DTOs
                     "pt.tiagoduarte.challenge.data.remote.RetrofitClient",
-                    "pt.tiagoduarte.challenge.data.remote.api.*",
                     "pt.tiagoduarte.challenge.data.remote.model.*",
                 )
             }
