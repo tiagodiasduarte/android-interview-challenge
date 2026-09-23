@@ -7,4 +7,13 @@
     <string name="rating_low_content_description">Low rating</string>
     <string name="rating_medium_content_description">Medium rating</string>
     <string name="rating_high_content_description">High rating</string>
+    <string name="product_detail_title">Product details</string>
+    <string name="product_detail_back">Back</string>
+    <string name="product_detail_not_found">Product not found</string>
+    <string name="product_detail_price">Price</string>
+    <string name="product_detail_price_value">$%1$.2f</string>
+    <string name="product_detail_discount">Discount</string>
+    <string name="product_detail_discount_value">%1$.2f%%</string>
+    <string name="product_detail_stock">Stock</string>
+    <string name="product_detail_rating">Rating</string>
 </resources>

@@ -1,6 +1,7 @@
 [versions]
 activityCompose = "1.13.0"
 agp = "9.3.3"
+coil = "3.6.3"
 composeBom = "2026.09.00"
 composeRulesDetekt = "0.4.23"
 coreKtx = "1.19.0"
@@ -51,6 +52,8 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-rules-detekt = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "composeRulesDetekt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

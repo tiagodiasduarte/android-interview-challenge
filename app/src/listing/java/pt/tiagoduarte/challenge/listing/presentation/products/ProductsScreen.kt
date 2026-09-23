@@ -38,6 +38,7 @@ import pt.tiagoduarte.challenge.ui.theme.SpaceSize
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsRoute(
+    onProductClick: (productId: Int) -> Unit,
     viewModel: ProductsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,6 +50,7 @@ fun ProductsRoute(
         products = products,
         searchQuery = searchQuery,
         onSearchQueryChange = viewModel::onSearchQueryChange,
+        onProductClick = onProductClick,
     )
 }
 
@@ -59,6 +61,7 @@ private fun ProductsScreen(
     products: LazyPagingItems<ProductUiModel>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    onProductClick: (productId: Int) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier,
@@ -87,6 +90,7 @@ private fun ProductsScreen(
                 products = products,
                 searchQuery = searchQuery,
                 onSearchQueryChange = onSearchQueryChange,
+                onProductClick = onProductClick,
                 modifier = contentModifier,
             )
         }
@@ -126,6 +130,7 @@ private fun ProductsLoadedContent(
     products: LazyPagingItems<ProductUiModel>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    onProductClick: (productId: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -156,7 +161,7 @@ private fun ProductsLoadedContent(
                 horizontalArrangement = Arrangement.spacedBy(SpaceSize.medium),
             ) {
                 items(count = products.itemCount, key = products.itemKey { it.id }) { index ->
-                    products[index]?.let { product -> ProductItem(product) }
+                    products[index]?.let { product -> ProductItem(product, onClick = { onProductClick(product.id) }) }
                 }
             }
         }
@@ -177,7 +182,7 @@ private fun ProductsContentPreview() {
         product.copy(id = id)
     }
     AppTheme {
-        ProductsScreen(ProductsUiState.Loaded, previewPagingItems(products), searchQuery = "", onSearchQueryChange = {})
+        ProductsScreen(ProductsUiState.Loaded, previewPagingItems(products), searchQuery = "", onSearchQueryChange = {}, onProductClick = {})
     }
 }
 
@@ -185,7 +190,7 @@ private fun ProductsContentPreview() {
 @Composable
 private fun ProductsLoadingPreview() {
     AppTheme {
-        ProductsScreen(ProductsUiState.Loading, previewPagingItems(), searchQuery = "", onSearchQueryChange = {})
+        ProductsScreen(ProductsUiState.Loading, previewPagingItems(), searchQuery = "", onSearchQueryChange = {}, onProductClick = {})
     }
 }
 
@@ -193,7 +198,7 @@ private fun ProductsLoadingPreview() {
 @Composable
 private fun ProductsErrorPreview() {
     AppTheme {
-        ProductsScreen(ProductsUiState.Error, previewPagingItems(), searchQuery = "", onSearchQueryChange = {})
+        ProductsScreen(ProductsUiState.Error, previewPagingItems(), searchQuery = "", onSearchQueryChange = {}, onProductClick = {})
     }
 }
 
@@ -201,7 +206,7 @@ private fun ProductsErrorPreview() {
 @Composable
 private fun ProductsNoResultsPreview() {
     AppTheme {
-        ProductsScreen(ProductsUiState.Loaded, previewPagingItems(), searchQuery = "kiwi", onSearchQueryChange = {})
+        ProductsScreen(ProductsUiState.Loaded, previewPagingItems(), searchQuery = "kiwi", onSearchQueryChange = {}, onProductClick = {})
     }
 }
 
