@@ -1,14 +1,13 @@
 package pt.tiagoduarte.challenge.listing.presentation.products
 
+import app.cash.turbine.TurbineTestContext
+import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.fakes.FakeProductRepository
 import pt.tiagoduarte.challenge.random.nextProduct
 import pt.tiagoduarte.challenge.rules.MainDispatcherRule
@@ -30,84 +29,39 @@ class ProductsViewModelTest {
             val viewModel = ProductsViewModel(repository)
 
             // Then
-            assertEquals(ProductsUiState.Loading, viewModel.products.value)
+            viewModel.products.test {
+                assertEquals(ProductsUiState.Loading, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     @Test
     fun `given products in the repository when they are observed then the state becomes Loaded with ui models`() =
-        runTest(mainDispatcherRule.dispatcher) {
+        runTest {
             // Given
             val product = Random.nextProduct(rating = 4.5)
+            val repository = FakeProductRepository(initialProducts = listOf(product))
 
             // When
-            val state = loadedState(listOf(product))
+            val viewModel = ProductsViewModel(repository)
 
             // Then
-            assertEquals(
-                ProductsUiState.Loaded(
-                    listOf(
-                        ProductUiModel(
-                            id = product.id,
-                            title = product.title,
-                            rating = product.rating,
-                            ratingCategory = RatingCategory.HIGH,
+            viewModel.products.test {
+                assertEquals(ProductsUiState.Loading, awaitItem())
+                assertEquals(
+                    ProductsUiState.Loaded(
+                        listOf(
+                            ProductUiModel(
+                                id = product.id,
+                                title = product.title,
+                                rating = product.rating,
+                                ratingCategory = RatingCategory.HIGH,
+                            ),
                         ),
                     ),
-                ),
-                state,
-            )
-        }
-
-    @Test
-    fun `given a rating below 3 when products are observed then the rating category is LOW`() =
-        runTest {
-            // Given
-            val product = Random.nextProduct(rating = 2.99)
-
-            // When
-            val category = ratingCategoryOf(product)
-
-            // Then
-            assertEquals(RatingCategory.LOW, category)
-        }
-
-    @Test
-    fun `given a rating of exactly 3 when products are observed then the rating category is MEDIUM`() =
-        runTest {
-            // Given
-            val product = Random.nextProduct(rating = 3.0)
-
-            // When
-            val category = ratingCategoryOf(product)
-
-            // Then
-            assertEquals(RatingCategory.MEDIUM, category)
-        }
-
-    @Test
-    fun `given a rating of exactly 4 when products are observed then the rating category is MEDIUM`() =
-        runTest {
-            // Given
-            val product = Random.nextProduct(rating = 4.0)
-
-            // When
-            val category = ratingCategoryOf(product)
-
-            // Then
-            assertEquals(RatingCategory.MEDIUM, category)
-        }
-
-    @Test
-    fun `given a rating above 4 when products are observed then the rating category is HIGH`() =
-        runTest {
-            // Given
-            val product = Random.nextProduct(rating = 4.01)
-
-            // When
-            val category = ratingCategoryOf(product)
-
-            // Then
-            assertEquals(RatingCategory.HIGH, category)
+                    awaitItem(),
+                )
+            }
         }
 
     @Test
@@ -117,10 +71,13 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository(shouldThrow = true)
 
             // When
-            val state = observedState(repository)
+            val viewModel = ProductsViewModel(repository)
 
             // Then
-            assertEquals(ProductsUiState.Error, state)
+            viewModel.products.test {
+                assertEquals(ProductsUiState.Loading, awaitItem())
+                assertEquals(ProductsUiState.Error, awaitItem())
+            }
         }
 
     @Test
@@ -128,13 +85,18 @@ class ProductsViewModelTest {
         runTest {
             // Given
             val product = Random.nextProduct()
-            val repository = FakeProductRepository(initialProducts = listOf(product), shouldThrow = true)
+            val repository =
+                FakeProductRepository(initialProducts = listOf(product), shouldThrow = true)
 
             // When
-            val state = observedState(repository)
+            val viewModel = ProductsViewModel(repository)
 
             // Then
-            assertEquals(listOf(product.id), (state as ProductsUiState.Loaded).products.map { it.id })
+            viewModel.products.test {
+                assertEquals(ProductsUiState.Loading, awaitItem())
+                val state = awaitItem() as ProductsUiState.Loaded
+                assertEquals(listOf(product.id), state.products.map { it.id })
+            }
         }
 
     @Test
@@ -144,10 +106,13 @@ class ProductsViewModelTest {
             val repository = FakeProductRepository()
 
             // When
-            val state = observedState(repository)
+            val viewModel = ProductsViewModel(repository)
 
             // Then
-            assertEquals(ProductsUiState.Loaded(emptyList()), state)
+            viewModel.products.test {
+                assertEquals(ProductsUiState.Loading, awaitItem())
+                assertEquals(ProductsUiState.Loaded(emptyList()), awaitItem())
+            }
         }
 
     @Test
@@ -164,16 +129,75 @@ class ProductsViewModelTest {
             assertEquals(1, repository.ensureCatalogDownloadedCallCount)
         }
 
-    private fun TestScope.loadedState(products: List<Product>): ProductsUiState =
-        observedState(FakeProductRepository(initialProducts = products))
 
-    private fun TestScope.observedState(repository: FakeProductRepository): ProductsUiState {
-        val viewModel = ProductsViewModel(repository)
-        backgroundScope.launch { viewModel.products.collect {} }
-        advanceUntilIdle()
-        return viewModel.products.value
-    }
+    @Test
+    fun `given a rating below 3 when products are observed then the rating category is LOW`() =
+        runTest {
+            // Given
+            val repository =
+                FakeProductRepository(initialProducts = listOf(Random.nextProduct(rating = 2.99)))
 
-    private fun TestScope.ratingCategoryOf(product: Product): RatingCategory =
-        (loadedState(listOf(product)) as ProductsUiState.Loaded).products.single().ratingCategory
+            // When
+            val viewModel = ProductsViewModel(repository)
+
+            // Then
+            viewModel.products.test {
+                skipItems(1)
+                assertEquals(RatingCategory.LOW, awaitRatingCategory())
+            }
+        }
+
+    @Test
+    fun `given a rating of exactly 3 when products are observed then the rating category is MEDIUM`() =
+        runTest {
+            // Given
+            val repository =
+                FakeProductRepository(initialProducts = listOf(Random.nextProduct(rating = 3.0)))
+
+            // When
+            val viewModel = ProductsViewModel(repository)
+
+            // Then
+            viewModel.products.test {
+                skipItems(1)
+                assertEquals(RatingCategory.MEDIUM, awaitRatingCategory())
+            }
+        }
+
+    @Test
+    fun `given a rating of exactly 4 when products are observed then the rating category is MEDIUM`() =
+        runTest {
+            // Given
+            val repository =
+                FakeProductRepository(initialProducts = listOf(Random.nextProduct(rating = 4.0)))
+
+            // When
+            val viewModel = ProductsViewModel(repository)
+
+            // Then
+            viewModel.products.test {
+                skipItems(1)
+                assertEquals(RatingCategory.MEDIUM, awaitRatingCategory())
+            }
+        }
+
+    @Test
+    fun `given a rating above 4 when products are observed then the rating category is HIGH`() =
+        runTest {
+            // Given
+            val repository =
+                FakeProductRepository(initialProducts = listOf(Random.nextProduct(rating = 4.01)))
+
+            // When
+            val viewModel = ProductsViewModel(repository)
+
+            // Then
+            viewModel.products.test {
+                skipItems(1)
+                assertEquals(RatingCategory.HIGH, awaitRatingCategory())
+            }
+        }
+
+    private suspend fun TurbineTestContext<ProductsUiState>.awaitRatingCategory(): RatingCategory =
+        (awaitItem() as ProductsUiState.Loaded).products.single().ratingCategory
 }

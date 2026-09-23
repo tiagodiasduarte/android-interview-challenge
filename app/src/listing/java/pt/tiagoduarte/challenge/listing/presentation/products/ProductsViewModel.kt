@@ -40,7 +40,7 @@ class ProductsViewModel @Inject constructor(repository: ProductRepository) : Vie
                 CatalogStatus.DOWNLOADED
             } catch (e: CancellationException) {
                 throw e
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
                 CatalogStatus.FAILED
             }
         }
