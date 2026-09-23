@@ -1,24 +1,54 @@
 package pt.tiagoduarte.challenge.data.repository
 
 import androidx.paging.testing.asSnapshot
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import pt.tiagoduarte.challenge.data.local.db.AppDatabase
+import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.fakes.FakeAppPreferences
 import pt.tiagoduarte.challenge.fakes.FakeProductApi
 import pt.tiagoduarte.challenge.fakes.FakeProductDao
+import pt.tiagoduarte.challenge.random.nextProductEntity
 import pt.tiagoduarte.challenge.random.nextProductResponse
 import pt.tiagoduarte.challenge.mapper.toEntity
 import pt.tiagoduarte.challenge.mapper.toProduct
 import kotlin.random.Random
 
+@RunWith(AndroidJUnit4::class)
 class ProductRepositoryImplTest {
 
     private val product = Random.nextProductResponse()
+
+    private val galaxy =
+        Random.nextProductEntity(id = 1, title = "Smartphone Samsung Galaxy", description = "Ecrã grande")
+    private val brulee = Random.nextProductEntity(id = 2, title = "Crème Brûlée", description = "Sobremesa francesa")
+    private val kiwi = Random.nextProductEntity(id = 3, title = "Kiwi", description = "Fruta fresca e ácida")
+    private val searchCatalog = listOf(galaxy, brulee, kiwi)
+
+    private lateinit var database: AppDatabase
+
+    @Before
+    fun setUp() {
+        database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+    }
+
+    @After
+    fun tearDown() {
+        database.close()
+    }
 
     @Test
     fun `given catalog not downloaded when ensureCatalogDownloaded is called then fetches and persists the catalog`() =
@@ -141,4 +171,152 @@ class ProductRepositoryImplTest {
         // Then
         assertEquals(null, result)
     }
+
+    @Test
+    fun `given terms out of order when searching then matches the product`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "galaxy samsung"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(galaxy).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given a query in a different case when searching then matches the product`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "SMARTPHONE"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(galaxy).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given a query without accents when searching a product with accents then matches it`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "creme brulee"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(brulee).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given a query with accents when searching a product without them then matches it`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "kíwí"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(kiwi).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given a term from the description when searching then matches the product`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "acida"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(kiwi).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given part of a word when searching then matches the product`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "phone"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(galaxy).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given one term that matches and one that does not when searching then returns nothing`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "samsung kiwi"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertTrue(results.isEmpty())
+    }
+
+    @Test
+    fun `given a LIKE wildcard when searching then treats it as plain text`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "%"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertTrue(results.isEmpty())
+    }
+
+    @Test
+    fun `given terms split between title and description when searching then matches the product`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+        val query = "acida kiwi"
+
+        // When
+        val results = search(query)
+
+        // Then
+        assertEquals(listOf(kiwi).map { it.toProduct() }, results)
+    }
+
+    @Test
+    fun `given a term in one title and another description when searching then lists the title match first`() =
+        runTest {
+            // Given
+            val smoothie = Random.nextProductEntity(id = 4, title = "Smoothie", description = "Com kiwi e maçã")
+            database.productDao().insertAll(searchCatalog + smoothie)
+
+            // When
+            val results = search("kiwi")
+
+            // Then
+            assertEquals(listOf(kiwi, smoothie).map { it.toProduct() }, results)
+        }
+
+    @Test
+    fun `given a blank query when searching then emits every product`() = runTest {
+        // Given
+        database.productDao().insertAll(searchCatalog)
+
+        // When
+        val results = search("   ")
+
+        // Then
+        assertEquals(searchCatalog.map { it.toProduct() }, results)
+    }
+
+    private suspend fun search(query: String): List<Product> =
+        ProductRepositoryImpl(FakeProductApi(), database.productDao(), FakeAppPreferences())
+            .observePagedProducts(query)
+            .asSnapshot()
 }

@@ -4,6 +4,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import androidx.room.Room
+import androidx.room.RoomRawQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
@@ -88,7 +89,7 @@ class ProductDaoTest {
             dao.insertAll(listOf(third, first, second))
             val pager = TestPager(
                 PagingConfig(pageSize = 2, initialLoadSize = 2, enablePlaceholders = false),
-                dao.pagingSource(),
+                dao.pagingSource(RoomRawQuery("SELECT * FROM products ORDER BY id")),
             )
 
             // When

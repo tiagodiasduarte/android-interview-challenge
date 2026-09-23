@@ -6,6 +6,8 @@ import app.cash.turbine.test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -222,6 +224,57 @@ class ProductsViewModelTest {
             // Then
             val ratingCategory = products.single().ratingCategory
             assertEquals(RatingCategory.HIGH, ratingCategory)
+        }
+
+    @Test
+    fun `given a search query when it changes then searchQuery holds it right away`() =
+        runTest {
+            // Given
+            val viewModel = ProductsViewModel(FakeProductRepository())
+
+            // When
+            viewModel.onSearchQueryChange("kiwi")
+
+            // Then
+            assertEquals("kiwi", viewModel.searchQuery.value)
+        }
+
+    @Test
+    fun `given a search query when the paged products are observed then emits only the matching products`() =
+        runTest {
+            // Given
+            val kiwi = Random.nextProduct(title = "Kiwi")
+            val repository = FakeProductRepository(listOf(Random.nextProduct(title = "Apple"), kiwi))
+            val viewModel = ProductsViewModel(repository)
+
+            // When
+            viewModel.onSearchQueryChange("  kiwi ")
+            val products = viewModel.awaitProducts()
+
+            // Then
+            assertEquals(listOf(kiwi.id), products.map { it.id })
+            assertEquals("kiwi", repository.searchQueries.last())
+        }
+
+    @Test
+    fun `given fast typing when the paged products are observed then searches only once typing stops`() =
+        runTest {
+            // Given
+            val repository = FakeProductRepository()
+            val viewModel = ProductsViewModel(repository)
+            backgroundScope.launch { viewModel.products.collect {} }
+            advanceUntilIdle()
+
+            // When
+            viewModel.onSearchQueryChange("k")
+            advanceTimeBy(100)
+            viewModel.onSearchQueryChange("ki")
+            advanceTimeBy(100)
+            viewModel.onSearchQueryChange("kiwi")
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(listOf("", "kiwi"), repository.searchQueries)
         }
 
     private suspend fun ProductsViewModel.awaitProducts(): List<ProductUiModel> {

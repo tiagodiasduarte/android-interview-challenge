@@ -20,13 +20,20 @@ class FakeProductRepository(
     var ensureCatalogDownloadedCallCount = 0
         private set
 
+    val searchQueries = mutableListOf<String>()
+
     override suspend fun ensureCatalogDownloaded() {
         ensureCatalogDownloadedCallCount++
         downloadGate?.await()
         if (shouldThrow) throw IOException("Network error")
     }
 
-    override fun observePagedProducts(): Flow<PagingData<Product>> = products.map { PagingData.from(it) }
+    override fun observePagedProducts(searchQuery: String): Flow<PagingData<Product>> {
+        searchQueries += searchQuery
+        return products.map { list ->
+            PagingData.from(list.filter { it.title.contains(searchQuery, ignoreCase = true) })
+        }
+    }
 
     override fun observeHasProducts(): Flow<Boolean> = products.map { it.isNotEmpty() }
 
