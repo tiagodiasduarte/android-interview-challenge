@@ -99,6 +99,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
