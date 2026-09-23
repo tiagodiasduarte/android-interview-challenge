@@ -163,6 +163,7 @@ kover {
                     // Activities and DI
                     "pt.tiagoduarte.challenge.listing.presentation.ListingActivity",
                     "pt.tiagoduarte.challenge.form.FormActivity",
+                    "pt.tiagoduarte.challenge.form.di.*",
                     "pt.tiagoduarte.challenge.listing.di.*",
                     "pt.tiagoduarte.challenge.data.local.db.AppDatabase",
 
