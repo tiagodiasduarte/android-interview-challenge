@@ -103,6 +103,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.robolectric)
+    testImplementation(libs.turbine)
 
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
