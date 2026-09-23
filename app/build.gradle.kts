@@ -157,7 +157,6 @@ kover {
 
                     // Retrofit API and DTOs
                     "pt.tiagoduarte.challenge.data.remote.RetrofitClient",
-                    "pt.tiagoduarte.challenge.data.remote.api.*",
                     "pt.tiagoduarte.challenge.data.remote.model.*",
                 )
             }
