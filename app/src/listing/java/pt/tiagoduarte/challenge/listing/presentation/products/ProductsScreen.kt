@@ -61,47 +61,48 @@ private fun ProductsScreen(productsUiState: ProductsUiState) {
             )
         },
     ) { innerPadding ->
+        val contentModifier = Modifier.padding(innerPadding)
         when (productsUiState) {
-            ProductsUiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
-                        .wrapContentSize()
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            ProductsUiState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
-                        .padding(SpaceSize.large)
-                        .wrapContentSize()
-                ) {
-                    Text(
-                        text = stringResource(R.string.product_list_error),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            }
-
-            is ProductsUiState.Loaded -> {
-                ProductListContent(
-                    products = productsUiState.products,
-                    modifier = Modifier.padding(innerPadding),
-                )
-            }
+            ProductsUiState.Loading -> ProductsLoadingContent(modifier = contentModifier)
+            ProductsUiState.Error -> ProductsErrorContent(modifier = contentModifier)
+            is ProductsUiState.Loaded -> ProductsLoadedContent(
+                products = productsUiState.products,
+                modifier = contentModifier,
+            )
         }
     }
 }
 
 @Composable
-private fun ProductListContent(products: List<ProductUiModel>, modifier: Modifier = Modifier) {
+private fun ProductsLoadingContent(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize()
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ProductsErrorContent(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(SpaceSize.large)
+            .wrapContentSize()
+    ) {
+        Text(
+            text = stringResource(R.string.product_list_error),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun ProductsLoadedContent(products: List<ProductUiModel>, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 280.dp),
         modifier = modifier.fillMaxSize(),
