@@ -9,10 +9,10 @@ data class ProductEntity(
     @PrimaryKey val id: Int,
     val title: String,
     @ColumnInfo(defaultValue = "")
-    val titleNormalized: String = title.normalizeForSearch(),
+    val titleNormalized: String,
     val description: String,
     @ColumnInfo(defaultValue = "")
-    val descriptionNormalized: String = description.normalizeForSearch(),
+    val descriptionNormalized: String,
     val price: Double,
     val discountPercentage: Double,
     val rating: Double,
