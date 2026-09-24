@@ -3,8 +3,10 @@ package pt.tiagoduarte.challenge.listing.presentation.products
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -81,7 +83,9 @@ private fun ProductsScreen(
             )
         },
     ) { innerPadding ->
-        val contentModifier = Modifier.padding(innerPadding)
+        val contentModifier = Modifier
+            .padding(innerPadding)
+            .consumeWindowInsets(innerPadding)
         when (productsUiState) {
             ProductsUiState.Loading -> ProductsLoadingContent(modifier = contentModifier)
             ProductsUiState.Error -> ProductsErrorContent(modifier = contentModifier)
@@ -132,7 +136,11 @@ private fun ProductsLoadedContent(
     onProductClick: (productId: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .imePadding(),
+    ) {
         ProductSearchField(
             query = searchQuery,
             onQueryChange = onSearchQueryChange,
