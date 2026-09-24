@@ -20,7 +20,7 @@ Both apps can be installed side by side on the same device.
 
 ## 🚀 Build, install and run
 
-The project has two apps, most tasks need the app (flavor) in their name. Run every command from the project root with the Gradle wrapper. In Android Studio, choose the app in **View → Tool Windows → Build Variants** (`listingDebug` or `formDebug`) and press **Run**.
+The project has two apps, so most tasks need the app (flavor) in their name. Run every command from the project root with the Gradle wrapper. In Android Studio, choose the app in **View → Tool Windows → Build Variants** (`listingDebug` or `formDebug`) and press **Run**.
 
 ```bash
 # Build the debug APKs
@@ -30,10 +30,13 @@ The project has two apps, most tasks need the app (flavor) in their name. Run ev
 # Build the release APKs
 ./gradlew assembleListingRelease
 ./gradlew assembleFormRelease
+
+# Install the debug APKs on a connected device or emulator
+./gradlew installListingDebug
+./gradlew installFormDebug
 ```
 
-The APKs are written to `app/build/outputs/apk/<app>/debug/`.
-
+The APKs are written to `app/build/outputs/apk/<app>/<buildType>/`. The release APKs are not signed, so they can't be installed as they are.
 
 ## 🧪 Tests and checks
 
@@ -59,10 +62,9 @@ CI (`.github/workflows/ci.yml`) runs the build, the unit tests with the coverage
 
 All four features from the requirements are implemented.
 - ✅ **Feature 1: Paginated List:** Product listing with local storage and first-launch download.
-- ✅ **Feature 2: Advanced Search:** Real-time search by name and description, with case and accent-insensitive matching.
+- ✅ **Feature 2: Advanced Search:** Real-time search by name and description, matching words in any order and ignoring case and accents.
 - ✅ **Feature 3: Product Detail:** Product details with title, price, discount, stock, rating, and image.
-- ✅ **Feature 4: Form Validation:** Form with validation for user data, email, phone, promo code, date, and rating.
-
+- ✅ **Feature 4: Form Validation:** Form with validation for user data, email, number, promo code, date, and rating.
 
 ## 🧠 Technical decisions
 
@@ -70,9 +72,9 @@ All four features from the requirements are implemented.
 
 Clean Architecture was chosen to keep the app modular, maintainable, and easy to test.
 
-* **Data Layer:** Handles API communication and local storage with Room.
-* **Domain Layer:** Contains the Product model and ProductRepository interface, independent of Android and the data layer. No use cases are needed yet, as they would only forward repository calls.
-* **Presentation Layer:** Uses MVVM, with ViewModels depending on the domain repository interface.
+- **Data Layer:** Handles API communication and local storage with Room.
+- **Domain Layer:** Contains the Product model and ProductRepository interface, independent of Android and the data layer. No use cases are needed yet, as they would only forward repository calls.
+- **Presentation Layer:** Uses MVVM, with ViewModels depending on the domain repository interface.
 
 The code follows a layered structure: **data → domain ← presentation**, with dependency injection through Hilt.
 
@@ -91,7 +93,7 @@ app/src/
 └── testFixtures/    Random test data (random products, entities and responses)
 ```
 
-**Note:** The `data/`, `domain/` and `mapper/` could be moved to the listing flavour because was not used in listing but was kep here because is the core of the app.
+**Note:** The `data/`, `domain/` and `mapper/` packages are only used by the listing app, so they could live in the `listing` flavor. They were kept in `src/main` because they are the core of the app.
 
 ### Dependency Injection (Hilt)
 
@@ -105,10 +107,10 @@ MVVM separates UI logic from business logic and works well with Jetpack Compose,
 
 The two required apps are built from a single module using product flavors:
 
-* **listing:** Product catalog, search, and detail (src/listing).
-* **form:** Validated order form (src/form).
+- **listing:** Product catalog, search, and detail (`src/listing`).
+- **form:** Validated order form (`src/form`).
 
-Each flavor has its own launcher activity, application ID, name, and test source set, allowing both apps to be installed side by side. Shared code is kept in src/main. 
+Each flavor has its own launcher activity, application ID, name, and test source set, allowing both apps to be installed side by side. Shared code is kept in `src/main`.
 
 ### Room Database
 
@@ -119,11 +121,7 @@ Room stores the product catalog locally, allowing the listing app to work offlin
 Paging 3 handles the product list efficiently, loading data from Room while limiting memory usage.
 
 ### UI and Theme
-The Screens and UI elements are built entirely using Jetpack Compose.
-
-- **Light** — the default light color scheme
-- **Dark** — the default dark color scheme
-- **System** — follows the device's system-wide light/dark setting(on Android 12 and newer)
+The screens and UI elements are built entirely with Jetpack Compose. The theme follows the system's light or dark mode, and uses dynamic color (colors from the wallpaper) on Android 12 and newer.
 
 The screens also adapt to tablets, foldables and landscape:
 - **Product list:** an adaptive grid, so wider screens show more columns.
@@ -134,14 +132,13 @@ On tablets, the list and the detail are still separate screens; showing them sid
 
 ### Testing
 
-* **Unit Tests:** Cover ViewModels, repository, DAO, API, mappers, and form validation.
-* **UI Tests:** Use Jetpack Compose testing APIs with Robolectric to test the list, detail screen, and form without an emulator.
-* **Fakes:** Hand-written fakes and a local mock server with JSON responses are used instead of mocks to test success and error scenarios.
+- **Unit Tests:** Cover ViewModels, repository, DAO, API, mappers, and form validation.
+- **UI Tests:** Use Jetpack Compose testing APIs with Robolectric to test the list, detail screen, and form without an emulator.
+- **Fakes:** Hand-written fakes and a local mock server with JSON responses are used instead of mocks to test success and error scenarios.
 
 ### Coverage
 
 Kover requires 90% line and branch coverage, excluding Composables, previews, Activities, Hilt modules, and generated code.
-
 
 ## 📚 Libraries
 
@@ -154,7 +151,7 @@ Kover requires 90% line and branch coverage, excluding Composables, previews, Ac
 | Material 3 adaptive                        | Window size classes, for the detail screen's wide layout                    |
 | Navigation Compose                         | Navigation between the list and the detail screen                           |
 | Lifecycle (runtime, Compose)               | Lifecycle-aware state collection in Compose (`collectAsStateWithLifecycle`) |
-| Hilt (+ Hilt Navigation Compose)           | Dependency injection, `hiltViewModel()`                                     |
+| Hilt (+ Hilt Lifecycle ViewModel Compose)  | Dependency injection, `hiltViewModel()`                                     |
 | Retrofit + kotlinx.serialization converter | HTTP API client and JSON parsing                                            |
 | OkHttp + logging interceptor               | HTTP client and request logging in debug builds                             |
 | kotlinx.serialization                      | JSON models for the API                                                     |
@@ -174,6 +171,7 @@ Kover requires 90% line and branch coverage, excluding Composables, previews, Ac
 | AndroidX Test (JUnit ext, core), Espresso | Android test runner and utilities used by Compose UI tests |
 | Compose UI test                           | Finding and interacting with composables in tests          |
 | Paging testing                            | Snapshots of paged data and in-memory paging sources       |
+| Navigation testing                        | Building `SavedStateHandle`s from type-safe routes         |
 
 ### 🔧 Build and tooling
 
