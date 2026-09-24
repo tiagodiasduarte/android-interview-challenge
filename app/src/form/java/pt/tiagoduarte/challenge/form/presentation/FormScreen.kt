@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -115,7 +117,7 @@ private fun FormScreen(uiState: FormUiState, today: LocalDate, actions: FormActi
                     Text(
                         text = stringResource(R.string.form_title),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -125,6 +127,7 @@ private fun FormScreen(uiState: FormUiState, today: LocalDate, actions: FormActi
         Box(
             modifier = Modifier
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
                 .imePadding()
                 .verticalScroll(rememberScrollState())
@@ -152,28 +155,28 @@ private fun FormFields(uiState: FormUiState, today: LocalDate, actions: FormActi
             onValueChange = actions.onNameChange,
             label = R.string.form_name,
             error = uiState.errors.name,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
         )
         FormTextField(
             value = uiState.email,
             onValueChange = actions.onEmailChange,
             label = R.string.form_email,
             error = uiState.errors.email,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         )
         FormTextField(
             value = uiState.number,
             onValueChange = actions.onNumberChange,
             label = R.string.form_number,
             error = uiState.errors.number,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
         )
         FormTextField(
             value = uiState.promoCode,
             onValueChange = actions.onPromoCodeChange,
             label = R.string.form_promo_code,
             error = uiState.errors.promoCode,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, imeAction = ImeAction.Done),
         )
         DeliveryDateField(
             date = uiState.deliveryDate,
