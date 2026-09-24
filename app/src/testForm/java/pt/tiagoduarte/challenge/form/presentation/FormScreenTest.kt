@@ -34,7 +34,6 @@ import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
 
-// Pinned to Portuguese (Portugal) so the date labels below don't depend on the machine running the tests
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "pt-rPT")
 class FormScreenTest {
@@ -129,7 +128,8 @@ class FormScreenTest {
     @Test
     fun `given a valid form when submitting then shows it was submitted and clears it`() {
         // Given
-        field(R.string.form_name).performTextInput("Tiago")
+        val name = "Tiago"
+        field(R.string.form_name).performTextInput(name)
         field(R.string.form_email).performTextInput("tiago@example.com")
         field(R.string.form_number).performTextInput("912345678")
         field(R.string.form_promo_code).performTextInput("PROMO-A")
@@ -142,7 +142,7 @@ class FormScreenTest {
 
         // Then
         composeRule.onNodeWithText(string(R.string.form_submitted)).assertIsDisplayed()
-        composeRule.onNodeWithText("Tiago").assertDoesNotExist()
+        composeRule.onNodeWithText(name).assertDoesNotExist()
     }
 
     private fun string(@StringRes id: Int): String = context.getString(id)
