@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.testing.invoke
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
@@ -17,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import pt.tiagoduarte.challenge.R
 import pt.tiagoduarte.challenge.fakes.FakeProductRepository
+import pt.tiagoduarte.challenge.listing.presentation.navigation.ProductDetailDestination
 import pt.tiagoduarte.challenge.random.nextProduct
 import pt.tiagoduarte.challenge.ui.theme.AppTheme
 import kotlin.random.Random
@@ -71,7 +73,7 @@ class ProductDetailScreenTest {
 
     private fun showScreen(productId: Int, repository: FakeProductRepository, onBackClick: () -> Unit = {}) {
         val viewModel = ProductDetailViewModel(
-            savedStateHandle = SavedStateHandle(mapOf(ProductDetailViewModel.PRODUCT_ID_ARG to productId)),
+            savedStateHandle = SavedStateHandle(route = ProductDetailDestination(productId)),
             repository = repository,
         )
         composeRule.setContent {
