@@ -1,16 +1,22 @@
 package pt.tiagoduarte.challenge.listing.presentation.productdetail
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.testing.invoke
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import pt.tiagoduarte.challenge.fakes.FakeProductRepository
+import pt.tiagoduarte.challenge.listing.presentation.navigation.ProductDetailDestination
 import pt.tiagoduarte.challenge.random.nextProduct
 import pt.tiagoduarte.challenge.rules.MainDispatcherRule
 import kotlin.random.Random
 
+// Robolectric provides the Android Bundle that route-based SavedStateHandles are stored in
+@RunWith(AndroidJUnit4::class)
 class ProductDetailViewModelTest {
 
     @get:Rule
@@ -83,7 +89,7 @@ class ProductDetailViewModelTest {
 
     private fun setupViewModel(productId: Int, repository: FakeProductRepository) =
         ProductDetailViewModel(
-            savedStateHandle = SavedStateHandle(mapOf(ProductDetailViewModel.PRODUCT_ID_ARG to productId)),
+            savedStateHandle = SavedStateHandle(route = ProductDetailDestination(productId)),
             repository = repository,
         )
 }
