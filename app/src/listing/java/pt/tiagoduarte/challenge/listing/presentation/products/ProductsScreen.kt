@@ -137,7 +137,6 @@ private fun ProductsLoadedContent(
     onProductClick: (productId: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Ends the list above the keyboard, so the last results can still be scrolled into view while searching
     Column(
         modifier = modifier
             .fillMaxSize()
