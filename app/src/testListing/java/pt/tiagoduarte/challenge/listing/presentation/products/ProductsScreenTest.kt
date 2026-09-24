@@ -5,7 +5,7 @@ import android.os.Looper
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -44,8 +44,8 @@ class ProductsScreenTest {
         showScreen(repository)
 
         // Then
-        composeRule.onNodeWithText("Kiwi").assertIsDisplayed()
-        composeRule.onNodeWithText("Apple").assertIsDisplayed()
+        composeRule.onNodeWithText(kiwi.title).assertIsDisplayed()
+        composeRule.onNodeWithText(apple.title).assertIsDisplayed()
     }
 
     @Test
@@ -63,7 +63,7 @@ class ProductsScreenTest {
             composeRule.onAllNodes(hasText(string(R.string.product_search_no_results)))
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("Kiwi").assertDoesNotExist()
+        composeRule.onNodeWithText(kiwi.title).assertDoesNotExist()
     }
 
     @Test
@@ -85,7 +85,7 @@ class ProductsScreenTest {
         showScreen(FakeProductRepository(listOf(kiwi, apple)), onProductClick = { clickedId = it })
 
         // When
-        composeRule.onNodeWithText("Apple").performClick()
+        composeRule.onNodeWithText(apple.title).performClick()
 
         // Then
         assertEquals(apple.id, clickedId)
