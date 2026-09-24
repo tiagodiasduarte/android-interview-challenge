@@ -1,0 +1,36 @@
+package pt.tiagoduarte.challenge.data.local.db
+
+import androidx.paging.PagingSource
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.RoomRawQuery
+import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface ProductDao {
+
+    @RawQuery(observedEntities = [ProductEntity::class])
+    fun pagingSource(query: RoomRawQuery): PagingSource<Int, ProductEntity>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM products)")
+    fun observeHasProducts(): Flow<Boolean>
+
+    @Query("SELECT * FROM products WHERE id = :id")
+    fun observeById(id: Int): Flow<ProductEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(products: List<ProductEntity>)
+
+    @Query("DELETE FROM products")
+    suspend fun clearAll()
+
+    @Transaction
+    suspend fun replaceAll(products: List<ProductEntity>) {
+        clearAll()
+        insertAll(products)
+    }
+}
