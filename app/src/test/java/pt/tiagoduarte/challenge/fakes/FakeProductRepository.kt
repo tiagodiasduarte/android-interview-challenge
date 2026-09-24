@@ -31,12 +31,12 @@ class FakeProductRepository(
         if (shouldThrow) throw IOException("Network error")
     }
 
-    override fun observePagedProducts(searchQuery: String): Flow<PagingData<Product>> {
-        searchQueries += searchQuery
+    override fun observePagedProducts(query: String): Flow<PagingData<Product>> {
+        searchQueries += query
         // A real Pager, so screens see the same loading states as with Room
         return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
             products.value
-                .filter { it.title.contains(searchQuery, ignoreCase = true) }
+                .filter { it.title.contains(query, ignoreCase = true) }
                 .asPagingSourceFactory()
                 .invoke()
         }.flow
