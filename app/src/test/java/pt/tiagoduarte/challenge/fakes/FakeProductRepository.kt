@@ -1,6 +1,9 @@
 package pt.tiagoduarte.challenge.fakes
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.testing.asPagingSourceFactory
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,13 +33,21 @@ class FakeProductRepository(
 
     override fun observePagedProducts(searchQuery: String): Flow<PagingData<Product>> {
         searchQueries += searchQuery
-        return products.map { list ->
-            PagingData.from(list.filter { it.title.contains(searchQuery, ignoreCase = true) })
-        }
+        // A real Pager, so screens see the same loading states as with Room
+        return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
+            products.value
+                .filter { it.title.contains(searchQuery, ignoreCase = true) }
+                .asPagingSourceFactory()
+                .invoke()
+        }.flow
     }
 
     override fun observeHasProducts(): Flow<Boolean> = products.map { it.isNotEmpty() }
 
     override fun observeProduct(id: Int): Flow<Product?> =
         products.map { list -> list.find { it.id == id } }
+
+    private companion object {
+        const val PAGE_SIZE = 20
+    }
 }
