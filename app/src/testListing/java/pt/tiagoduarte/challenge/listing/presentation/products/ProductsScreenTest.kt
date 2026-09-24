@@ -79,6 +79,22 @@ class ProductsScreenTest {
     }
 
     @Test
+    fun `given the list fails to load when retry is tapped after it recovers then lists the products`() {
+        // Given
+        val repository = FakeProductRepository(listOf(kiwi, apple), failPageLoads = true)
+        showScreen(repository)
+        composeRule.onNodeWithText(string(R.string.product_list_load_error)).assertIsDisplayed()
+
+        // When
+        repository.failPageLoads = false
+        composeRule.onNodeWithText(string(R.string.product_list_retry)).performClick()
+
+        // Then
+        composeRule.onNodeWithText(kiwi.title).assertIsDisplayed()
+        composeRule.onNodeWithText(string(R.string.product_list_load_error)).assertDoesNotExist()
+    }
+
+    @Test
     fun `given a listed product when it is tapped then reports its id`() {
         // Given
         var clickedId: Int? = null

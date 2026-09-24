@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -112,6 +116,25 @@ private fun ProductsLoadingContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
+private fun PagingErrorContent(onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SpaceSize.medium),
+    ) {
+        Text(
+            text = stringResource(R.string.product_list_load_error),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Button(onClick = onRetry) {
+            Text(stringResource(R.string.product_list_retry))
+        }
+    }
+}
+
+@Composable
 private fun ProductsErrorContent(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
@@ -147,8 +170,17 @@ private fun ProductsLoadedContent(
             modifier = Modifier.padding(start = SpaceSize.large, top = SpaceSize.large, end = SpaceSize.large),
         )
 
-        val noResults = products.itemCount == 0 && products.loadState.refresh is LoadState.NotLoading
-        if (noResults) {
+        val refresh = products.loadState.refresh
+        val noResults = products.itemCount == 0 && refresh is LoadState.NotLoading
+        if (refresh is LoadState.Error) {
+            PagingErrorContent(
+                onRetry = products::retry,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(SpaceSize.large)
+                    .wrapContentSize(),
+            )
+        } else if (noResults) {
             Text(
                 text = stringResource(R.string.product_search_no_results),
                 style = MaterialTheme.typography.bodyLarge,
@@ -169,6 +201,11 @@ private fun ProductsLoadedContent(
             ) {
                 items(count = products.itemCount, key = products.itemKey { it.id }) { index ->
                     products[index]?.let { product -> ProductItem(product, onClick = { onProductClick(product.id) }) }
+                }
+                if (products.loadState.append is LoadState.Error) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        PagingErrorContent(onRetry = products::retry)
+                    }
                 }
             }
         }
