@@ -1,13 +1,16 @@
 package pt.tiagoduarte.challenge.mapper
 
 import pt.tiagoduarte.challenge.data.local.db.ProductEntity
+import pt.tiagoduarte.challenge.data.local.db.normalizeForSearch
 import pt.tiagoduarte.challenge.data.remote.model.ProductResponse
 import pt.tiagoduarte.challenge.domain.model.Product
 
 fun ProductResponse.toEntity(): ProductEntity = ProductEntity(
     id = id,
     title = title,
+    titleNormalized = title.normalizeForSearch(),
     description = description,
+    descriptionNormalized = description.normalizeForSearch(),
     price = price,
     discountPercentage = discountPercentage,
     rating = rating,

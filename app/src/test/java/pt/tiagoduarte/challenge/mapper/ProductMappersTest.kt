@@ -23,7 +23,9 @@ class ProductMappersTest {
             ProductEntity(
                 id = response.id,
                 title = response.title,
+                titleNormalized = response.title.lowercase(),
                 description = response.description,
+                descriptionNormalized = response.description.lowercase(),
                 price = response.price,
                 discountPercentage = response.discountPercentage,
                 rating = response.rating,
@@ -32,6 +34,19 @@ class ProductMappersTest {
             ),
             entity,
         )
+    }
+
+    @Test
+    fun `given a title and description with accents when toEntity is called then normalizes them for search`() {
+        // Given
+        val response = Random.nextProductResponse(title = "Crème Brûlée", description = "Fresh Café Dessert")
+
+        // When
+        val entity = response.toEntity()
+
+        // Then
+        assertEquals("creme brulee", entity.titleNormalized)
+        assertEquals("fresh cafe dessert", entity.descriptionNormalized)
     }
 
     @Test
