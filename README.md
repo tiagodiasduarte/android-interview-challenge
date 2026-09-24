@@ -181,7 +181,7 @@ Kover requires 90% line and branch coverage, excluding Composables, previews, Ac
 |------------------------------------------------------|----------------------------------------------------------|
 | KSP                                                  | Code generation for Room and Hilt                        |
 | Kover                                                | Code coverage reports and the coverage minimum           |
-| Detekt + Compose rules                               | Kotlin static analysis, including Compose-specific rules |
+| Detekt                                               | Kotlin static analysis                                   |
 | Android Lint                                         | Android static analysis                                  |
 | Gradle version catalog (`gradle/libs.versions.toml`) | All dependency versions in one place                     |
 
