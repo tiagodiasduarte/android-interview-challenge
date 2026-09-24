@@ -109,10 +109,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
-
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.androidx.espresso.core)
     testImplementation(libs.androidx.junit)
@@ -126,8 +122,6 @@ dependencies {
 
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
-
-    detektPlugins(libs.compose.rules.detekt)
 }
 
 detekt {

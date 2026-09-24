@@ -4,7 +4,6 @@ adaptive = "1.3.0"
 agp = "9.3.3"
 coil = "3.6.3"
 composeBom = "2026.09.00"
-composeRulesDetekt = "0.4.23"
 coreKtx = "1.19.0"
 detekt = "1.23.8"
 espressoCore = "3.7.0"
@@ -56,7 +55,6 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
-compose-rules-detekt = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "composeRulesDetekt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
