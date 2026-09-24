@@ -183,14 +183,14 @@ kover {
         verify {
             rule("line-coverage") {
                 minBound(
-                    minValue = 80,
+                    minValue = 90,
                     coverageUnits = CoverageUnit.LINE,
                     aggregationForGroup = AggregationType.COVERED_PERCENTAGE
                 )
             }
             rule("branch-coverage") {
                 minBound(
-                    minValue = 80,
+                    minValue = 90,
                     coverageUnits = CoverageUnit.BRANCH,
                     aggregationForGroup = AggregationType.COVERED_PERCENTAGE
                 )
