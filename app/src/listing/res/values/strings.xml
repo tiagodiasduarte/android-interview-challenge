@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">Listing - Challenge</string>
     <string name="product_list_title">Products</string>
     <string name="product_search_placeholder">Search products</string>
     <string name="product_search_clear">Clear search</string>
