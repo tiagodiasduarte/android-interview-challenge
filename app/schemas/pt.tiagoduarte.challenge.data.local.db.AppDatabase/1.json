@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b3454d4b288f4f33f55106c5254aa20c",
+    "identityHash": "638452d89eee6b049208f78925a5a9a0",
     "entities": [
       {
         "tableName": "products",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `price` REAL NOT NULL, `discountPercentage` REAL NOT NULL, `rating` REAL NOT NULL, `stock` INTEGER NOT NULL, `thumbnail` TEXT NOT NULL, `titleNormalized` TEXT NOT NULL DEFAULT '', `descriptionNormalized` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleNormalized` TEXT NOT NULL, `description` TEXT NOT NULL, `descriptionNormalized` TEXT NOT NULL, `price` REAL NOT NULL, `discountPercentage` REAL NOT NULL, `rating` REAL NOT NULL, `stock` INTEGER NOT NULL, `thumbnail` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -21,8 +21,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "titleNormalized",
+            "columnName": "titleNormalized",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "description",
             "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "descriptionNormalized",
+            "columnName": "descriptionNormalized",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -55,20 +67,6 @@
             "columnName": "thumbnail",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "titleNormalized",
-            "columnName": "titleNormalized",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "descriptionNormalized",
-            "columnName": "descriptionNormalized",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
           }
         ],
         "primaryKey": {
@@ -81,7 +79,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b3454d4b288f4f33f55106c5254aa20c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '638452d89eee6b049208f78925a5a9a0')"
     ]
   }
 }
