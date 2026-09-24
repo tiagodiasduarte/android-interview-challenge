@@ -26,8 +26,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "BASE_URL", "\"https://dummyjson.com/\"")
     }
 
     buildTypes {
@@ -65,6 +63,7 @@ android {
             dimension = "appMode"
             applicationIdSuffix = ".listing"
             versionNameSuffix = "-listing"
+            buildConfigField("String", "BASE_URL", "\"https://dummyjson.com/\"")
         }
         create("form") {
             dimension = "appMode"
@@ -77,7 +76,6 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.adaptive)
     implementation(libs.androidx.compose.material3)
 
     implementation(libs.androidx.compose.ui)
@@ -87,24 +85,27 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.paging.compose)
-    implementation(libs.androidx.paging.runtime)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.paging)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.hilt.android)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
 
-    ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)
+
+    // Listing app only: networking, database, paging, images and navigation
+    "listingImplementation"(libs.androidx.compose.adaptive)
+    "listingImplementation"(libs.androidx.navigation.compose)
+    "listingImplementation"(libs.androidx.paging.compose)
+    "listingImplementation"(libs.androidx.paging.runtime)
+    "listingImplementation"(libs.androidx.room.runtime)
+    "listingImplementation"(libs.androidx.room.ktx)
+    "listingImplementation"(libs.androidx.room.paging)
+    "listingImplementation"(libs.coil.compose)
+    "listingImplementation"(libs.coil.network.okhttp)
+    "listingImplementation"(libs.kotlinx.serialization.json)
+    "listingImplementation"(libs.okhttp)
+    "listingImplementation"(libs.okhttp.logging.interceptor)
+    "listingImplementation"(libs.retrofit.core)
+    "listingImplementation"(libs.retrofit.converter.kotlinx.serialization)
+    "kspListing"(libs.androidx.room.compiler)
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -118,13 +119,14 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.androidx.espresso.core)
     testImplementation(libs.androidx.junit)
-    testImplementation(libs.androidx.navigation.testing)
-    testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.robolectric)
     testImplementation(libs.turbine)
+
+    "testListingImplementation"(libs.androidx.navigation.testing)
+    "testListingImplementation"(libs.androidx.paging.testing)
+    "testListingImplementation"(libs.okhttp.mockwebserver)
 
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
