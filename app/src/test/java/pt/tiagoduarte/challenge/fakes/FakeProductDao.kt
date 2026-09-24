@@ -13,7 +13,8 @@ class FakeProductDao : ProductDao {
 
     private val products = MutableStateFlow<List<ProductEntity>>(emptyList())
 
-    override fun observeAll(): Flow<List<ProductEntity>> = products
+    val savedProducts: List<ProductEntity>
+        get() = products.value
 
     // Returns every product: running the raw search SQL needs a real Room database, see ProductRepositoryImplTest
     override fun pagingSource(query: RoomRawQuery): PagingSource<Int, ProductEntity> =
