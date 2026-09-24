@@ -68,7 +68,7 @@ private fun ProductDetailScreen(uiState: ProductDetailUiState, onBackClick: () -
                     Text(
                         text = stringResource(R.string.product_detail_title),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 navigationIcon = {

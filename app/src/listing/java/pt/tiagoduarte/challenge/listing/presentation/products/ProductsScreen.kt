@@ -67,13 +67,12 @@ private fun ProductsScreen(
 ) {
     Scaffold(
         modifier = Modifier,
-        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         text = stringResource(R.string.product_list_title),
                     )
                 },
