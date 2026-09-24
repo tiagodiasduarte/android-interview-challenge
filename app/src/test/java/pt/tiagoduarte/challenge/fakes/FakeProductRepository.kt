@@ -28,10 +28,10 @@ class FakeProductRepository(
         if (shouldThrow) throw IOException("Network error")
     }
 
-    override fun observePagedProducts(searchQuery: String): Flow<PagingData<Product>> {
-        searchQueries += searchQuery
+    override fun observePagedProducts(query: String): Flow<PagingData<Product>> {
+        searchQueries += query
         return products.map { list ->
-            PagingData.from(list.filter { it.title.contains(searchQuery, ignoreCase = true) })
+            PagingData.from(list.filter { it.title.contains(query, ignoreCase = true) })
         }
     }
 
