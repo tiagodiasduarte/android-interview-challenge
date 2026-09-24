@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.map
 import pt.tiagoduarte.challenge.data.local.db.ProductDao
 import pt.tiagoduarte.challenge.data.local.db.normalizeForSearch
 import pt.tiagoduarte.challenge.mapper.toEntity
-import pt.tiagoduarte.challenge.data.local.prefs.AppPreferences
 import pt.tiagoduarte.challenge.data.remote.api.ProductApi
 import pt.tiagoduarte.challenge.domain.model.Product
 import pt.tiagoduarte.challenge.domain.repository.ProductRepository
@@ -21,15 +20,12 @@ import javax.inject.Inject
 class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApi,
     private val dao: ProductDao,
-    private val prefs: AppPreferences,
 ) : ProductRepository {
 
     override suspend fun ensureCatalogDownloaded() {
-        if (prefs.isCatalogDownloaded.first()) return
-        val response = api.getProducts()
-        dao.clearAll()
-        dao.insertAll(response.products.map { it.toEntity() })
-        prefs.setCatalogDownloaded(true)
+        if (dao.observeHasProducts().first()) return
+        val products = api.getProducts().products.map { it.toEntity() }
+        dao.replaceAll(products)
     }
 
     override fun observePagedProducts(query: String): Flow<PagingData<Product>> =

@@ -7,13 +7,11 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RoomRawQuery
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
-
-    @Query("SELECT * FROM products ORDER BY id")
-    fun observeAll(): Flow<List<ProductEntity>>
 
     @RawQuery(observedEntities = [ProductEntity::class])
     fun pagingSource(query: RoomRawQuery): PagingSource<Int, ProductEntity>
@@ -29,4 +27,10 @@ interface ProductDao {
 
     @Query("DELETE FROM products")
     suspend fun clearAll()
+
+    @Transaction
+    suspend fun replaceAll(products: List<ProductEntity>) {
+        clearAll()
+        insertAll(products)
+    }
 }

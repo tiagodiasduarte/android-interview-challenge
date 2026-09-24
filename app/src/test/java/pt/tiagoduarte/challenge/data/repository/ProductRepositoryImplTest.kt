@@ -5,7 +5,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -13,7 +12,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import pt.tiagoduarte.challenge.data.local.db.AppDatabase
 import pt.tiagoduarte.challenge.domain.model.Product
-import pt.tiagoduarte.challenge.fakes.FakeAppPreferences
 import pt.tiagoduarte.challenge.fakes.FakeProductApi
 import pt.tiagoduarte.challenge.fakes.FakeProductDao
 import pt.tiagoduarte.challenge.random.nextProductEntity
@@ -52,54 +50,70 @@ class ProductRepositoryImplTest {
 
 
     @Test
-    fun `given catalog not downloaded when ensureCatalogDownloaded is called then fetches and persists the catalog`() =
+    fun `given an empty database when ensureCatalogDownloaded is called then fetches and saves the catalog`() =
         runTest {
             // Given
             val api = FakeProductApi(products = listOf(product))
             val dao = FakeProductDao()
-            val prefs = FakeAppPreferences()
-            val repository = ProductRepositoryImpl(api, dao, prefs)
+            val repository = ProductRepositoryImpl(api, dao)
 
             // When
             repository.ensureCatalogDownloaded()
 
             // Then
-            assertTrue(prefs.isCatalogDownloaded.first())
-            assertEquals(1, dao.observeAll().first().size)
+            assertEquals(listOf(product.toEntity()), dao.savedProducts)
         }
 
     @Test
-    fun `given the fetch is interrupted when ensureCatalogDownloaded is called then the flag stays false`() =
+    fun `given the fetch is interrupted when ensureCatalogDownloaded is called then nothing is saved`() =
         runTest {
             // Given
             val api = FakeProductApi(shouldThrow = true)
             val dao = FakeProductDao()
-            val prefs = FakeAppPreferences()
-            val repository = ProductRepositoryImpl(api, dao, prefs)
+            val repository = ProductRepositoryImpl(api, dao)
 
             // When
             val exception = runCatching { repository.ensureCatalogDownloaded() }.exceptionOrNull()
 
             // Then
             assertNotNull(exception)
-            assertFalse(prefs.isCatalogDownloaded.first())
-            assertTrue(dao.observeAll().first().isEmpty())
+            assertTrue(dao.savedProducts.isEmpty())
         }
 
     @Test
-    fun `given catalog already downloaded when ensureCatalogDownloaded is called then it does not fetch again`() =
+    fun `given an interrupted download when ensureCatalogDownloaded is called again then downloads from scratch`() =
         runTest {
             // Given
-            val api = FakeProductApi(products = listOf(product))
+            val api = FakeProductApi(products = listOf(product), shouldThrow = true)
             val dao = FakeProductDao()
-            val prefs = FakeAppPreferences(initialValue = true)
-            val repository = ProductRepositoryImpl(api, dao, prefs)
+            val repository = ProductRepositoryImpl(api, dao)
+            runCatching { repository.ensureCatalogDownloaded() }
+            api.shouldThrow = false
 
             // When
             repository.ensureCatalogDownloaded()
 
             // Then
-            assertTrue(dao.observeAll().first().isEmpty())
+            assertEquals(2, api.getProductsCallCount)
+            assertEquals(listOf(product.toEntity()), dao.savedProducts)
+        }
+
+    @Test
+    fun `given products already saved when ensureCatalogDownloaded is called then it does not fetch again`() =
+        runTest {
+            // Given
+            val savedProduct = Random.nextProductResponse().toEntity()
+            val api = FakeProductApi(products = listOf(product))
+            val dao = FakeProductDao()
+            dao.insertAll(listOf(savedProduct))
+            val repository = ProductRepositoryImpl(api, dao)
+
+            // When
+            repository.ensureCatalogDownloaded()
+
+            // Then
+            assertEquals(0, api.getProductsCallCount)
+            assertEquals(listOf(savedProduct), dao.savedProducts)
         }
 
     @Test
@@ -108,7 +122,7 @@ class ProductRepositoryImplTest {
             // Given
             val dao = FakeProductDao()
             dao.insertAll(listOf(product.toEntity()))
-            val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+            val repository = ProductRepositoryImpl(FakeProductApi(), dao)
 
             // When
             val products = repository.observePagedProducts().asSnapshot()
@@ -123,7 +137,7 @@ class ProductRepositoryImplTest {
             // Given
             val dao = FakeProductDao()
             dao.insertAll((1..30).map { Random.nextProductResponse(id = it).toEntity() })
-            val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+            val repository = ProductRepositoryImpl(FakeProductApi(), dao)
 
             // When
             val products = repository.observePagedProducts().asSnapshot()
@@ -138,7 +152,7 @@ class ProductRepositoryImplTest {
             // Given
             val dao = FakeProductDao()
             dao.insertAll(listOf(product.toEntity()))
-            val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+            val repository = ProductRepositoryImpl(FakeProductApi(), dao)
 
             // When
             val hasProducts = repository.observeHasProducts().first()
@@ -153,7 +167,7 @@ class ProductRepositoryImplTest {
             // Given
             val dao = FakeProductDao()
             dao.insertAll(listOf(product.toEntity()))
-            val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+            val repository = ProductRepositoryImpl(FakeProductApi(), dao)
 
             // When
             val result = repository.observeProduct(product.id).first()
@@ -168,7 +182,7 @@ class ProductRepositoryImplTest {
             // Given
             val dao = FakeProductDao()
             dao.insertAll(listOf(product.toEntity()))
-            val repository = ProductRepositoryImpl(FakeProductApi(), dao, FakeAppPreferences())
+            val repository = ProductRepositoryImpl(FakeProductApi(), dao)
 
             // When
             val result = repository.observeProduct(id = product.id + 1).first()
@@ -329,7 +343,7 @@ class ProductRepositoryImplTest {
     }
 
     private suspend fun search(query: String): List<Product> =
-        ProductRepositoryImpl(FakeProductApi(), database.productDao(), FakeAppPreferences())
+        ProductRepositoryImpl(FakeProductApi(), database.productDao())
             .observePagedProducts(query)
             .asSnapshot()
 }
