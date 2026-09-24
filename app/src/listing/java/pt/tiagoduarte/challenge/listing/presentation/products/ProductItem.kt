@@ -3,7 +3,8 @@ package pt.tiagoduarte.challenge.listing.presentation.products
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,36 +21,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import pt.tiagoduarte.challenge.R
 import pt.tiagoduarte.challenge.ui.theme.SpaceSize
-
 
 @Composable
 fun ProductItem(product: ProductUiModel, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().height(120.dp),
         shape = RoundedCornerShape(SpaceSize.large),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = SpaceSize.small),
     ) {
         Row(
-            modifier = Modifier.padding(SpaceSize.large),
+            modifier = Modifier.fillMaxSize().padding(SpaceSize.large),
             horizontalArrangement = Arrangement.spacedBy(SpaceSize.medium),
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
                 Text(
                     text = product.title,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
-                Spacer(Modifier.height(SpaceSize.medium))
-
                 Text(
+                    text = product.rating.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    text = product.rating.toString()
                 )
             }
             RatingIcon(ratingCategory = product.ratingCategory)
