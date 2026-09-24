@@ -252,6 +252,7 @@ private fun DeliveryDateField(
     if (showPicker) {
         val pickerState = rememberDatePickerState(
             initialSelectedDateMillis = date?.toUtcMillis(),
+            initialDisplayedMonthMillis = (date ?: today).toUtcMillis(),
             selectableDates = DeliverySelectableDates(today),
         )
         DatePickerDialog(

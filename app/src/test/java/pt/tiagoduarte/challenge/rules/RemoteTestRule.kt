@@ -3,13 +3,10 @@ package pt.tiagoduarte.challenge.rules
 import androidx.annotation.VisibleForTesting
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
-import okhttp3.MediaType.Companion.toMediaType
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import pt.tiagoduarte.challenge.data.remote.RetrofitClient
 import pt.tiagoduarte.challenge.utils.readFromJSONToString
-import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.net.HttpURLConnection
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -34,11 +31,8 @@ class RemoteTestRule : TestWatcher() {
         mockWebServer.enqueue(MockResponse.Builder().body(body).code(code).build())
     }
 
-    inline fun <reified Service> createTestService(): Service = Retrofit.Builder()
-        .baseUrl(mockWebServer.url("/"))
-        .addConverterFactory(RetrofitClient.json.asConverterFactory("application/json".toMediaType()))
-        .build()
-        .create(Service::class.java)
+    inline fun <reified Service> createTestService(): Service =
+        RetrofitClient(baseUrl = mockWebServer.url("/").toString()).create()
 }
 
 fun RemoteTestRule.toServerSuccessResponse(jsonFile: String) {

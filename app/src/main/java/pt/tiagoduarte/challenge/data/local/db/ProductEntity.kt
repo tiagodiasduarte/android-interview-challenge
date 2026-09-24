@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 data class ProductEntity(
     @PrimaryKey val id: Int,
     val title: String,
-    val titleNormalized: String = title.normalizeForSearch(),
+    val titleNormalized: String,
     val description: String,
-    val descriptionNormalized: String = description.normalizeForSearch(),
+    val descriptionNormalized: String,
     val price: Double,
     val discountPercentage: Double,
     val rating: Double,
