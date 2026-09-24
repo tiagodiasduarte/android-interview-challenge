@@ -4,11 +4,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import pt.tiagoduarte.challenge.data.remote.api.ProductApi
+import pt.tiagoduarte.challenge.BuildConfig
 import pt.tiagoduarte.challenge.data.remote.RetrofitClient
-import retrofit2.Retrofit
+import pt.tiagoduarte.challenge.data.remote.api.ProductApi
 import javax.inject.Singleton
 
 @Module
@@ -17,17 +15,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json = RetrofitClient.json
+    fun provideRetrofitClient(): RetrofitClient = RetrofitClient(BuildConfig.BASE_URL)
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient = RetrofitClient.okHttpClient
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(): Retrofit = RetrofitClient.retrofit
-
-    @Provides
-    @Singleton
-    fun provideProductApi(): ProductApi = RetrofitClient.productApi
+    fun provideProductApi(retrofitClient: RetrofitClient): ProductApi = retrofitClient.create()
 }

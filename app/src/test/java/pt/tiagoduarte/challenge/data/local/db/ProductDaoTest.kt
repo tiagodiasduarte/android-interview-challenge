@@ -27,32 +27,6 @@ class ProductDaoTest {
     private val dao: ProductDao get() = databaseRule.database.productDao()
 
     @Test
-    fun `given an empty database when observeAll is called then emits an empty list`() = runTest {
-        // Given an empty database
-
-        // When
-        val products = dao.observeAll().first()
-
-        // Then
-        assertTrue(products.isEmpty())
-    }
-
-    @Test
-    fun `given inserted products when observeAll is called then emits them ordered by id`() = runTest {
-        // Given
-        val first = Random.nextProductEntity(id = 1)
-        val second = Random.nextProductEntity(id = 2)
-        val third = Random.nextProductEntity(id = 3)
-        dao.insertAll(listOf(third, first, second))
-
-        // When
-        val products = dao.observeAll().first()
-
-        // Then
-        assertEquals(listOf(first, second, third), products)
-    }
-
-    @Test
     fun `given a product with an existing id when insertAll is called then replaces it`() = runTest {
         // Given
         val original = Random.nextProductEntity(id = 1)
@@ -63,7 +37,7 @@ class ProductDaoTest {
         dao.insertAll(listOf(updated))
 
         // Then
-        assertEquals(listOf(updated), dao.observeAll().first())
+        assertEquals(listOf(updated), savedProducts())
     }
 
     @Test
@@ -135,6 +109,19 @@ class ProductDaoTest {
     }
 
     @Test
+    fun `given saved products when replaceAll is called then only the new products remain`() = runTest {
+        // Given
+        dao.insertAll(listOf(Random.nextProductEntity(id = 1), Random.nextProductEntity(id = 2)))
+        val newProducts = listOf(Random.nextProductEntity(id = 2), Random.nextProductEntity(id = 3))
+
+        // When
+        dao.replaceAll(newProducts)
+
+        // Then
+        assertEquals(newProducts, savedProducts())
+    }
+
+    @Test
     fun `given inserted products when clearAll is called then removes every product`() = runTest {
         // Given
         dao.insertAll(listOf(Random.nextProductEntity(id = 1), Random.nextProductEntity(id = 2)))
@@ -143,6 +130,14 @@ class ProductDaoTest {
         dao.clearAll()
 
         // Then
-        assertTrue(dao.observeAll().first().isEmpty())
+        assertTrue(savedProducts().isEmpty())
+    }
+
+    private suspend fun savedProducts(): List<ProductEntity> {
+        val pager = TestPager(
+            PagingConfig(pageSize = 100, enablePlaceholders = false),
+            dao.pagingSource(RoomRawQuery("SELECT * FROM products ORDER BY id")),
+        )
+        return (pager.refresh() as PagingSource.LoadResult.Page).data
     }
 }
