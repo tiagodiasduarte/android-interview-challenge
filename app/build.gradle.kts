@@ -122,8 +122,6 @@ dependencies {
 
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
-
-    detektPlugins(libs.compose.rules.detekt)
 }
 
 detekt {
