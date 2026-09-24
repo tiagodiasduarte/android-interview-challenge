@@ -6,7 +6,7 @@
 
 A native Android project built with Kotlin and Jetpack Compose, following Clean Architecture and MVVM. It uses Coroutines and Flow for asynchronous operations, Hilt for dependency injection, and unit and Compose UI tests for the main layers and user interactions.
 
-The projeRct builds two independent apps from a single codebase:
+The project builds two independent apps from a single codebase:
 
 - **Listing** (`pt.tiagoduarte.challenge.listing`): Downloads a product catalog once, stores it locally, and provides a paginated, searchable list with a product detail screen.
 - **Form** (`pt.tiagoduarte.challenge.form`): Provides a validated order form.
