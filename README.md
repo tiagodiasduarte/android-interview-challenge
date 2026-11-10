@@ -81,19 +81,21 @@ The code follows a layered structure: **data → domain ← presentation**, with
 ```
 app/src/
 ├── main/            shared by both apps
+│   └── ui/theme/    Compose theme, colors, typography, spacing
+├── listing/         listing app
 │   ├── data/        Room (entity, DAO, database), Retrofit (API, DTOs, RetrofitClient), repository implementation
 │   ├── domain/      Product model and ProductRepository interface
 │   ├── mapper/      conversions between DTOs, entities and domain models
-│   └── ui/theme/    Compose theme, colors, typography, spacing
-├── listing/         listing app: ListingApp, ListingActivity, navigation, Hilt modules, screens and ViewModels
+│   ├── di/          Hilt modules
+│   ├── presentation/ ListingActivity, navigation, screens and ViewModels
+│   └── ListingApp   Hilt application class
 ├── form/            form app: FormApp, FormActivity, validator, screen and ViewModel
-├── test/            unit tests shared by both apps, fakes and test rules
-├── testListing/     listing-only tests
-├── testForm/        form-only tests
-└── testFixtures/    Random test data (random products, entities and responses)
+├── testListing/     listing tests, fakes, stubs and test rules
+├── testForm/        form tests
+└── testFixturesListing/  Random test data (random products, entities and responses)
 ```
 
-**Note:** The `data/`, `domain/` and `mapper/` packages are only used by the listing app, so they could live in the `listing` flavor. They were kept in `src/main` because they are the core of the app.
+**Note:** The `data/`, `domain/` and `mapper/` packages are only used by the listing app, so they live in the `listing` flavor. This keeps Room, Retrofit and the product model out of the form app's sources.
 
 ### Dependency Injection (Hilt)
 
