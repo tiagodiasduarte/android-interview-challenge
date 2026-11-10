@@ -160,14 +160,14 @@ kover {
                     "pt.tiagoduarte.challenge.BuildConfig",
 
                     // Application classes
-                    "pt.tiagoduarte.challenge.listing.ListingApp",
+                    "pt.tiagoduarte.challenge.ListingApp",
                     "pt.tiagoduarte.challenge.form.FormApp",
 
                     // Activities and DI
-                    "pt.tiagoduarte.challenge.listing.presentation.ListingActivity",
+                    "pt.tiagoduarte.challenge.presentation.ListingActivity",
                     "pt.tiagoduarte.challenge.form.FormActivity",
                     "pt.tiagoduarte.challenge.form.di.*",
-                    "pt.tiagoduarte.challenge.listing.di.*",
+                    "pt.tiagoduarte.challenge.di.*",
                     "pt.tiagoduarte.challenge.data.local.db.AppDatabase",
 
                     // Theme
